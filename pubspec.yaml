@@ -55,20 +55,20 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
-
-fonts:
-  - family: Roboto
-    fonts:
-      - asset: lib/assets/fonts/roboto_bold.ttf
-        weight: 700
-      - asset: assets/fonts/roboto_regular.ttf
-        weight: 400
-      - asset: assets/fonts/roboto_light.ttf
-        weight: 300
-  - family: Righteous
-    fonts:
-      - asset: lib/assets/fonts/righteous.ttf
-        weight: 400
+  assets:
+    - lib/assets/images/welcome.png
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: lib/assets/fonts/roboto_bold.ttf
+          weight: 700
+        - asset: lib/assets/fonts/roboto_regular.ttf
+          weight: 400
+        - asset: lib/assets/fonts/roboto_light.ttf
+          weight: 300
+    - family: Righteous
+      fonts:
+        - asset: lib/assets/fonts/righteous.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:
