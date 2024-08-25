@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "169730474351",
+    "project_id": "mobiefy-flutter-app",
+    "storage_bucket": "mobiefy-flutter-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:169730474351:android:17914c91c8a4be1c07689a",
+        "android_client_info": {
+          "package_name": "com.mobiefy.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9nzHjKwS7CEoGukzH3KXlUUaBGgnzZ3A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
