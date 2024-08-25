@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:mobiefy_flutter/views/welcome_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding
+      .ensureInitialized(); // Ensure Flutter bindings are initialized
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform, // Initialize Firebase
+  );
+  runApp(const MyApp()); // Run the app after Firebase is initialized
 }
 
 class MyApp extends StatelessWidget {

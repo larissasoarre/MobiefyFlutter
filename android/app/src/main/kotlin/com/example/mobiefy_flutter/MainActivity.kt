@@ -1,4 +1,4 @@
-package com.example.mobiefy_flutter
+package com.mobiefy.app
 
 import io.flutter.embedding.android.FlutterActivity
 
