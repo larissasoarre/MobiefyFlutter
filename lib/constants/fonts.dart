@@ -19,4 +19,11 @@ class AppFonts {
       fontSize: 17.0,
       decoration: TextDecoration.none,
       color: AppColors.black);
+
+  static const TextStyle inputLabel = TextStyle(
+      fontFamily: textFontFamily,
+      fontSize: 17.0,
+      fontWeight: FontWeight.w600,
+      decoration: TextDecoration.none,
+      color: AppColors.black);
 }
