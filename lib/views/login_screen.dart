@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobiefy_flutter/constants/colors.dart';
 import 'package:mobiefy_flutter/constants/fonts.dart';
-import 'package:mobiefy_flutter/views/welcome_screen.dart';
+import 'package:mobiefy_flutter/views/signup_screen.dart';
 import 'package:mobiefy_flutter/widgets/button.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -110,7 +110,7 @@ class PageContent extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const WelcomeScreen()),
+                            builder: (context) => const SignUpScreen()),
                       );
                     },
                     child: Text(
