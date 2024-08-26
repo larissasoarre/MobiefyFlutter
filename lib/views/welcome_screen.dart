@@ -45,8 +45,10 @@ class WelcomeScreen extends StatelessWidget {
             ]),
             Column(
               children: [
-                Button(
+                CustomButton(
                   label: 'Começar',
+                  color: AppColors.secondary,
+                  textColor: AppColors.primary,
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -65,12 +67,22 @@ class WelcomeScreen extends StatelessWidget {
                       style: AppFonts.text.copyWith(color: AppColors.white),
                     ),
                     const SizedBox(width: 5.0),
-                    Text(
-                      "Faça login",
-                      textAlign: TextAlign.center,
-                      style: AppFonts.text.copyWith(
-                          color: AppColors.white, fontWeight: FontWeight.w700),
-                    )
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginScreen()),
+                        );
+                      },
+                      child: Text(
+                        "Faça login",
+                        textAlign: TextAlign.center,
+                        style: AppFonts.text.copyWith(
+                            color: AppColors.white,
+                            fontWeight: FontWeight.w700),
+                      ),
+                    ),
                   ],
                 ),
               ],
