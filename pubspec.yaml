@@ -60,6 +60,7 @@ flutter:
   assets:
     - lib/assets/images/welcome.png
     - lib/assets/images/login.png
+    - lib/assets/images/create_account.png
   fonts:
     - family: Roboto
       fonts:
