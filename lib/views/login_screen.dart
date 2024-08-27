@@ -42,13 +42,14 @@ class PageContent extends StatelessWidget {
                 .copyWith(color: AppColors.primary, fontSize: 32),
           ),
           const SizedBox(height: 17.0),
-          Column(
+          Form(
+              child: Column(
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text("E-mail", style: AppFonts.inputLabel),
-                  TextField(
+                  TextFormField(
                     decoration: InputDecoration(
                         filled: true,
                         fillColor: AppColors.brightShade,
@@ -57,29 +58,29 @@ class PageContent extends StatelessWidget {
                             borderRadius: BorderRadius.circular(15))),
                   )
                 ],
-              )
-            ],
-          ),
-          const SizedBox(height: 30.0),
-          Column(
-            children: [
+              ),
+              const SizedBox(height: 30.0),
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Senha", style: AppFonts.inputLabel),
-                  TextField(
-                    decoration: InputDecoration(
-                        filled: true,
-                        fillColor: AppColors.brightShade,
-                        border: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                            borderRadius: BorderRadius.circular(20))),
-                  ),
-                  const SizedBox(height: 30.0)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text("Senha", style: AppFonts.inputLabel),
+                      TextFormField(
+                        decoration: InputDecoration(
+                            filled: true,
+                            fillColor: AppColors.brightShade,
+                            border: OutlineInputBorder(
+                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.circular(20))),
+                      ),
+                      const SizedBox(height: 30.0)
+                    ],
+                  )
                 ],
-              )
+              ),
             ],
-          ),
+          )),
           Column(
             children: [
               CustomButton(
