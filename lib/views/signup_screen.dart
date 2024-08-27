@@ -12,26 +12,35 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  // bool _showPassword = true;
-
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
       home: Scaffold(
-        body: PageContent(),
+        body: SingleChildScrollView(child: PageContent()),
       ),
     );
   }
 }
 
-class PageContent extends StatelessWidget {
+class PageContent extends StatefulWidget {
   const PageContent({super.key});
 
   @override
+  State<PageContent> createState() => _PageContentState();
+}
+
+class _PageContentState extends State<PageContent> {
+  bool _hidePassword = true;
+  bool _hideConfirmPassword = true;
+
+  @override
   Widget build(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(38.0, 60.0, 38.0, 25.0),
       color: AppColors.white,
+      height: screenHeight,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -71,11 +80,12 @@ class PageContent extends StatelessWidget {
                         const Text("E-mail", style: AppFonts.inputLabel),
                         TextFormField(
                           decoration: InputDecoration(
-                              filled: true,
-                              fillColor: AppColors.brightShade,
-                              border: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: BorderRadius.circular(15))),
+                            filled: true,
+                            fillColor: AppColors.brightShade,
+                            border: OutlineInputBorder(
+                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.circular(15)),
+                          ),
                         )
                       ],
                     ),
@@ -87,12 +97,27 @@ class PageContent extends StatelessWidget {
                           children: [
                             const Text("Senha", style: AppFonts.inputLabel),
                             TextFormField(
+                              obscureText: _hidePassword,
                               decoration: InputDecoration(
                                 filled: true,
                                 fillColor: AppColors.brightShade,
                                 border: OutlineInputBorder(
                                     borderSide: BorderSide.none,
                                     borderRadius: BorderRadius.circular(20)),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _hidePassword
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                    color: AppColors.primary,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _hidePassword =
+                                          !_hidePassword; // Toggle visibility
+                                    });
+                                  },
+                                ),
                               ),
                             ),
                           ],
@@ -104,12 +129,28 @@ class PageContent extends StatelessWidget {
                             const Text("Confirmar Senha",
                                 style: AppFonts.inputLabel),
                             TextFormField(
+                              obscureText: _hideConfirmPassword,
                               decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: AppColors.brightShade,
-                                  border: OutlineInputBorder(
-                                      borderSide: BorderSide.none,
-                                      borderRadius: BorderRadius.circular(20))),
+                                filled: true,
+                                fillColor: AppColors.brightShade,
+                                border: OutlineInputBorder(
+                                    borderSide: BorderSide.none,
+                                    borderRadius: BorderRadius.circular(20)),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _hideConfirmPassword
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                    color: AppColors.primary,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _hideConfirmPassword =
+                                          !_hideConfirmPassword; // Toggle visibility
+                                    });
+                                  },
+                                ),
+                              ),
                             ),
                             const SizedBox(height: 30.0)
                           ],
