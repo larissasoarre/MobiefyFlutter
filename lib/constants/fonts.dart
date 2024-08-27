@@ -23,7 +23,7 @@ class AppFonts {
   static const TextStyle inputLabel = TextStyle(
       fontFamily: textFontFamily,
       fontSize: 17.0,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w400,
       decoration: TextDecoration.none,
       color: AppColors.black);
 }
