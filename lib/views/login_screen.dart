@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobiefy_flutter/constants/colors.dart';
 import 'package:mobiefy_flutter/constants/fonts.dart';
+import 'package:mobiefy_flutter/services/auth_service.dart';
+import 'package:mobiefy_flutter/views/home.dart';
 import 'package:mobiefy_flutter/views/signup_screen.dart';
 import 'package:mobiefy_flutter/widgets/button.dart';
 
@@ -30,7 +32,45 @@ class PageContent extends StatefulWidget {
 }
 
 class _PageContentState extends State<PageContent> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool _hidePassword = true;
+  bool _isLoading = false;
+  String _errorMessage = '';
+
+  Future<void> _handleLogin() async {
+    if (_emailController.text.trim().isEmpty ||
+        _passwordController.text.trim().isEmpty) {
+      setState(() {
+        _errorMessage = 'Todos os campos são obrigatórios.';
+      });
+      return;
+    }
+
+    setState(() {
+      _errorMessage = '';
+      _isLoading = true;
+    });
+
+    bool isLoginSuccessful = await AuthService().signin(
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = false;
+      _errorMessage = AuthService.signupError;
+    });
+
+    if (isLoginSuccessful) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +79,7 @@ class _PageContentState extends State<PageContent> {
     return Container(
       padding: const EdgeInsets.fromLTRB(38.0, 60.0, 38.0, 25.0),
       color: AppColors.white,
-      height: screenHeight,
+      height: _errorMessage.isEmpty ? screenHeight : null,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -65,6 +105,7 @@ class _PageContentState extends State<PageContent> {
                   children: [
                     const Text("E-mail", style: AppFonts.inputLabel),
                     TextFormField(
+                      controller: _emailController,
                       decoration: InputDecoration(
                           filled: true,
                           fillColor: AppColors.brightShade,
@@ -80,6 +121,7 @@ class _PageContentState extends State<PageContent> {
                   children: [
                     const Text("Senha", style: AppFonts.inputLabel),
                     TextFormField(
+                      controller: _passwordController,
                       obscureText: _hidePassword,
                       decoration: InputDecoration(
                         filled: true,
@@ -96,13 +138,23 @@ class _PageContentState extends State<PageContent> {
                           ),
                           onPressed: () {
                             setState(() {
-                              _hidePassword =
-                                  !_hidePassword; // Toggle visibility
+                              _hidePassword = !_hidePassword;
                             });
                           },
                         ),
                       ),
                     ),
+                    if (_errorMessage.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          _errorMessage,
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
                     const SizedBox(height: 30.0)
                   ],
                 )
@@ -111,18 +163,15 @@ class _PageContentState extends State<PageContent> {
           ),
           Column(
             children: [
-              CustomButton(
-                label: 'Entrar',
-                color: AppColors.primary,
-                textColor: AppColors.white,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const LoginScreen()),
-                  );
-                },
-              ),
+              if (_isLoading)
+                const CircularProgressIndicator()
+              else
+                CustomButton(
+                  label: 'Entrar',
+                  color: AppColors.primary,
+                  textColor: AppColors.white,
+                  onPressed: _handleLogin,
+                ),
               const SizedBox(height: 15.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
