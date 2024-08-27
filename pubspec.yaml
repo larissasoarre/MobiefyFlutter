@@ -36,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   firebase_core: ^3.3.0
   firebase_auth: ^5.1.4
+  google_maps_flutter: ^2.9.0
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +63,7 @@ flutter:
     - lib/assets/images/login.png
     - lib/assets/images/create_account.png
     - lib/assets/images/success.png
+    - lib/assets/images/drag_bar.png
   fonts:
     - family: Roboto
       fonts:
