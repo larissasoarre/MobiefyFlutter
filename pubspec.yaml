@@ -63,7 +63,6 @@ flutter:
     - lib/assets/images/login.png
     - lib/assets/images/create_account.png
     - lib/assets/images/success.png
-    - lib/assets/images/drag_bar.png
   fonts:
     - family: Roboto
       fonts:
