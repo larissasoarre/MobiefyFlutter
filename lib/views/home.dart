@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mobiefy_flutter/constants/colors.dart';
+import 'package:mobiefy_flutter/views/map.dart';
 import 'package:mobiefy_flutter/widgets/circular_button.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -17,7 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
       home: Scaffold(
         body: Stack(
           children: [
-            const Map(),
+            const AppMap(),
             DraggableScrollableSheet(
               initialChildSize: 0.13,
               maxChildSize: 0.3,
@@ -110,23 +110,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class Map extends StatefulWidget {
-  const Map({super.key});
-
-  @override
-  State<Map> createState() => _MapState();
-}
-
-class _MapState extends State<Map> {
-  static const testLocation = LatLng(37.4223, -122.0848);
-  @override
-  Widget build(BuildContext context) {
-    return const GoogleMap(
-      initialCameraPosition: CameraPosition(target: testLocation, zoom: 13),
     );
   }
 }
