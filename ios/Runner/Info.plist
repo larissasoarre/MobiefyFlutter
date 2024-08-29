@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>O aplicativo Mobiefy precisa acessar sua localização para mostrar sua posição atual no mapa.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>O aplicativo Mobiefy precisa acessar sua localização o tempo todo para fornecer recursos baseados na localização.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>O aplicativo Mobiefy precisa acessar sua localização tanto em uso quanto em segundo plano.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
