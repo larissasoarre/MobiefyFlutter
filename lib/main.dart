@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobiefy_flutter/views/welcome_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -10,12 +9,6 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform, // Initialize Firebase
   );
-
-  await Permission.locationWhenInUse.isDenied.then((value) {
-    if(value) {
-      Permission.locationWhenInUse.request();
-    }
-  });
   runApp(const MyApp()); // Run the app after Firebase is initialized
 }
 
