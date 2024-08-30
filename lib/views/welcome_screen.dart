@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobiefy_flutter/constants/colors.dart';
 import 'package:mobiefy_flutter/constants/fonts.dart';
-import 'package:mobiefy_flutter/views/login_screen.dart';
-import 'package:mobiefy_flutter/views/signup_screen.dart';
+import 'package:mobiefy_flutter/views/location_permission_screen.dart';
 import 'package:mobiefy_flutter/widgets/button.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -19,7 +18,7 @@ class WelcomeScreen extends StatelessWidget {
             const Image(image: AssetImage('lib/assets/images/welcome.png')),
             Column(children: [
               Text(
-                "Bem Vindo",
+                "Bem-Vindo",
                 style: AppFonts.heading.copyWith(color: AppColors.white),
               ),
               Row(
@@ -37,7 +36,7 @@ class WelcomeScreen extends StatelessWidget {
                   )
                 ],
               ),
-              const SizedBox(height: 15.0),
+              const SizedBox(height: 25.0),
               Text(
                 "Desbloqueando viagens inteligentes com seu passaporte de mobilidade eficiente!",
                 textAlign: TextAlign.center,
@@ -54,38 +53,12 @@ class WelcomeScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const SignUpScreen()),
+                          builder: (context) =>
+                              const LocationPermissionScreen()),
                     );
                   },
                 ),
-                const SizedBox(height: 15.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Já tem uma conta?",
-                      textAlign: TextAlign.center,
-                      style: AppFonts.text.copyWith(color: AppColors.white),
-                    ),
-                    const SizedBox(width: 5.0),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const LoginScreen()),
-                        );
-                      },
-                      child: Text(
-                        "Faça login",
-                        textAlign: TextAlign.center,
-                        style: AppFonts.text.copyWith(
-                            color: AppColors.white,
-                            fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                  ],
-                ),
+                const SizedBox(height: 30.0),
               ],
             )
           ],
