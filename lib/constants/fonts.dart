@@ -18,14 +18,14 @@ class AppFonts {
   static const TextStyle text = TextStyle(
       fontFamily: textFontFamily,
       fontWeight: FontWeight.w400,
-      fontSize: 18.0,
+      fontSize: 17.0,
       height: 1.4,
       decoration: TextDecoration.none,
       color: AppColors.black);
 
   static const TextStyle inputLabel = TextStyle(
       fontFamily: textFontFamily,
-      fontSize: 18.0,
+      fontSize: 17.0,
       fontWeight: FontWeight.w400,
       decoration: TextDecoration.none,
       color: AppColors.black);
