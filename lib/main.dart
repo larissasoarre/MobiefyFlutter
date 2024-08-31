@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mobiefy_flutter/views/home.dart';
+import 'package:mobiefy_flutter/views/loading_screen.dart';
+import 'package:mobiefy_flutter/views/login_screen.dart';
 import 'package:mobiefy_flutter/views/welcome_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -39,7 +43,46 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const WelcomeScreen(),
+      home: const InitialScreen(),
     );
+  }
+}
+
+class InitialScreen extends StatefulWidget {
+  const InitialScreen({super.key});
+
+  @override
+  State<InitialScreen> createState() => _InitialScreenState();
+}
+
+class _InitialScreenState extends State<InitialScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _checkStatus();
+  }
+
+  Future<void> _checkStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool hasCompletedSetup = prefs.getBool('hasCompletedSetup') ?? false;
+    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    if (!mounted) return;
+
+    if (!hasCompletedSetup) {
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => const WelcomeScreen()));
+    } else if (isLoggedIn) {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+    } else {
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const LoadingScreen();
   }
 }
