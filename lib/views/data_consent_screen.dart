@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mobiefy_flutter/constants/colors.dart';
 import 'package:mobiefy_flutter/constants/fonts.dart';
+import 'package:mobiefy_flutter/views/data_agreement_screen.dart';
 import 'package:mobiefy_flutter/views/login_screen.dart';
 import 'package:mobiefy_flutter/widgets/button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DataConsentScreen extends StatefulWidget {
   const DataConsentScreen({super.key});
@@ -31,7 +33,11 @@ class _DataConsentScreenState extends State<DataConsentScreen> {
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back_ios_rounded),
                 onPressed: () {
-                  Navigator.of(context).pop(); // Go back to the previous screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const DataAgreementScreen()),
+                  );
                 },
               ),
             ),
@@ -60,6 +66,8 @@ class _PageContentState extends State<PageContent> {
     });
 
     if (!mounted) return;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hasCompletedSetup', true);
 
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {
@@ -69,6 +77,16 @@ class _PageContentState extends State<PageContent> {
         );
       }
     });
+  }
+
+  void _onAgree() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hasCompletedSetup', true);
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => const LoginScreen()));
   }
 
   @override
@@ -126,16 +144,7 @@ class _PageContentState extends State<PageContent> {
                 label: 'Concordar',
                 color: AppColors.brightShade,
                 textColor: AppColors.black,
-                onPressed: () {
-                  setState(() {
-                    _performanceAnalytics = true;
-                  });
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const LoginScreen()),
-                  );
-                },
+                onPressed: _onAgree,
               ),
               const SizedBox(height: 14.0),
               CustomButton(

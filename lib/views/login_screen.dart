@@ -5,6 +5,7 @@ import 'package:mobiefy_flutter/services/auth_service.dart';
 import 'package:mobiefy_flutter/views/home.dart';
 import 'package:mobiefy_flutter/views/signup_screen.dart';
 import 'package:mobiefy_flutter/widgets/button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -65,6 +66,11 @@ class _PageContentState extends State<PageContent> {
     });
 
     if (isLoginSuccessful) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', true);
+
+      if (!mounted) return;
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen()),
