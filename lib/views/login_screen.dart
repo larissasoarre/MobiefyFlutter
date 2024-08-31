@@ -94,7 +94,7 @@ class _PageContentState extends State<PageContent> {
           Text(
             "Bem-vindo de volta!",
             style: AppFonts.heading
-                .copyWith(color: AppColors.primary, fontSize: 32),
+                .copyWith(color: AppColors.primary, fontSize: 31),
           ),
           const SizedBox(height: 17.0),
           Form(
