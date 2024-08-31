@@ -4,9 +4,35 @@ import 'package:mobiefy_flutter/constants/fonts.dart';
 import 'package:mobiefy_flutter/views/data_consent_screen.dart';
 import 'package:mobiefy_flutter/views/login_screen.dart';
 import 'package:mobiefy_flutter/widgets/button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class DataAgreementScreen extends StatelessWidget {
+class DataAgreementScreen extends StatefulWidget {
   const DataAgreementScreen({super.key});
+
+  @override
+  State<DataAgreementScreen> createState() => _DataAgreementScreenState();
+}
+
+class _DataAgreementScreenState extends State<DataAgreementScreen> {
+  void _onAgree() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hasCompletedSetup', true);
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+  }
+
+  void _manageAccess() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hasCompletedSetup', true);
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(context,
+        MaterialPageRoute(builder: (context) => const DataConsentScreen()));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,26 +79,14 @@ class DataAgreementScreen extends StatelessWidget {
                 label: 'Gerenciar Acesso',
                 color: AppColors.brightShade,
                 textColor: AppColors.black,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const DataConsentScreen()),
-                  );
-                },
+                onPressed: _manageAccess,
               ),
               const SizedBox(height: 14.0),
               CustomButton(
                 label: 'Concordar',
                 color: AppColors.primary,
                 textColor: AppColors.white,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const LoginScreen()),
-                  );
-                },
+                onPressed: _onAgree,
               ),
               const SizedBox(height: 30.0),
             ],
