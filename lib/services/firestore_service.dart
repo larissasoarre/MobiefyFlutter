@@ -23,4 +23,16 @@ class FirestoreService {
       rethrow;
     }
   }
+
+  Future<Map<String, dynamic>?> getUserDetails(String uid) async {
+    try {
+      DocumentSnapshot snapshot = await _db.collection('users').doc(uid).get();
+      return snapshot.data() as Map<String, dynamic>?;
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error fetching user details: $e");
+      }
+      return null;
+    }
+  }
 }

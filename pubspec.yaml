@@ -70,6 +70,7 @@ flutter:
     - lib/assets/images/location.png
     - lib/assets/images/permission_denied.png
     - lib/assets/images/data_permission.png
+    - lib/assets/images/user_standard_photo.png
   fonts:
     - family: Roboto
       fonts:
