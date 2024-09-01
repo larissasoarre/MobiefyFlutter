@@ -8,6 +8,12 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+def secretsPropertiesFile = rootProject.file("secrets.properties")
+def secretsProperties = new Properties()
+if (secretsPropertiesFile.exists()) {
+    secretsProperties.load(new FileInputStream(secretsPropertiesFile))
+}
+
 android {
     namespace = "com.mobiefy.app"
     compileSdk = flutter.compileSdkVersion
@@ -32,6 +38,9 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders = [
+            GOOGLE_MAPS_API: secretsProperties['GOOGLE_MAPS_API'] ?: "default_value_if_missing"
+        ]
     }
 
     buildTypes {
