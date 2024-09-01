@@ -1,15 +1,31 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mobiefy_flutter/services/firestore_service.dart';
 
 class AuthService {
   static String signupError = '';
 
-  Future<bool> signup({required String email, required String password}) async {
+  Future<bool> signup({
+    required String email,
+    required String password,
+    required String fullName,
+    required bool performanceAnalyticsAgreement,
+  }) async {
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+
+      // Store information in Firestore
+      await FirestoreService().createUser(
+        userCredential.user!.uid,
+        fullName,
+        email,
+        performanceAnalyticsAgreement,
+      );
+
       return true; // Sign up was successful
     } catch (e) {
       if (kDebugMode) {

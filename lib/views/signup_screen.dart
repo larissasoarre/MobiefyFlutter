@@ -7,7 +7,12 @@ import 'package:mobiefy_flutter/views/signup_success_screen.dart';
 import 'package:mobiefy_flutter/widgets/button.dart';
 
 class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({super.key});
+  final bool performanceAnalyticsAgreement;
+
+  const SignUpScreen({
+    super.key,
+    required this.performanceAnalyticsAgreement,
+  });
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -16,16 +21,25 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       home: Scaffold(
-        body: SingleChildScrollView(child: PageContent()),
+        body: SingleChildScrollView(
+          child: PageContent(
+            performanceAnalyticsAgreement: widget.performanceAnalyticsAgreement,
+          ),
+        ),
       ),
     );
   }
 }
 
 class PageContent extends StatefulWidget {
-  const PageContent({super.key});
+  final bool performanceAnalyticsAgreement;
+
+  const PageContent({
+    super.key,
+    required this.performanceAnalyticsAgreement,
+  });
 
   @override
   State<PageContent> createState() => _PageContentState();
@@ -107,6 +121,8 @@ class _PageContentState extends State<PageContent> {
     bool isSignupSuccessful = await AuthService().signup(
       email: _emailController.text,
       password: _passwordController.text,
+      fullName: _nameController.text,
+      performanceAnalyticsAgreement: widget.performanceAnalyticsAgreement,
     );
 
     if (!mounted) return;

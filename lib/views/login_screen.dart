@@ -194,7 +194,9 @@ class _PageContentState extends State<PageContent> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const SignUpScreen()),
+                            builder: (context) => const SignUpScreen(
+                                  performanceAnalyticsAgreement: false,
+                                )),
                       );
                     },
                     child: Text(

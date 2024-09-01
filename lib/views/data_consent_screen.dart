@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobiefy_flutter/constants/colors.dart';
 import 'package:mobiefy_flutter/constants/fonts.dart';
 import 'package:mobiefy_flutter/views/data_agreement_screen.dart';
-import 'package:mobiefy_flutter/views/login_screen.dart';
+import 'package:mobiefy_flutter/views/signup_screen.dart';
 import 'package:mobiefy_flutter/widgets/button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -58,11 +58,11 @@ class PageContent extends StatefulWidget {
 }
 
 class _PageContentState extends State<PageContent> {
-  bool _performanceAnalytics = false;
+  bool performanceAnalyticsAgreement = false;
 
   Future<void> _handleAgreeToAll() async {
     setState(() {
-      _performanceAnalytics = true;
+      performanceAnalyticsAgreement = true;
     });
 
     if (!mounted) return;
@@ -73,7 +73,11 @@ class _PageContentState extends State<PageContent> {
       if (mounted) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          MaterialPageRoute(
+            builder: (context) => SignUpScreen(
+              performanceAnalyticsAgreement: performanceAnalyticsAgreement,
+            ),
+          ),
         );
       }
     });
@@ -86,7 +90,13 @@ class _PageContentState extends State<PageContent> {
     if (!mounted) return;
 
     Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+      context,
+      MaterialPageRoute(
+        builder: (context) => SignUpScreen(
+          performanceAnalyticsAgreement: performanceAnalyticsAgreement,
+        ),
+      ),
+    );
   }
 
   @override
@@ -125,10 +135,10 @@ class _PageContentState extends State<PageContent> {
                 trailing: Transform.scale(
                   scale: 0.8,
                   child: Switch(
-                    value: _performanceAnalytics,
+                    value: performanceAnalyticsAgreement,
                     onChanged: (bool newValue) {
                       setState(() {
-                        _performanceAnalytics = newValue;
+                        performanceAnalyticsAgreement = newValue;
                       });
                     },
                     inactiveTrackColor: AppColors.brightShade,
