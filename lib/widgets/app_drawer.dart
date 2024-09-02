@@ -4,14 +4,26 @@ import 'package:mobiefy_flutter/constants/colors.dart';
 import 'package:mobiefy_flutter/constants/fonts.dart';
 import 'package:mobiefy_flutter/services/firestore_service.dart';
 import 'package:mobiefy_flutter/views/login_screen.dart';
+import 'package:mobiefy_flutter/views/profile_settings.dart';
 import 'package:mobiefy_flutter/widgets/button.dart';
 
 class AppDrawer extends StatelessWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
   final String userName;
+  final VoidCallback onUserNameUpdated;
 
   const AppDrawer(
-      {super.key, required this.scaffoldKey, required this.userName});
+      {super.key,
+      required this.scaffoldKey,
+      required this.userName,
+      required this.onUserNameUpdated});
+
+  Future<void> _refreshUserName() async {
+    final name = await _fetchUserName();
+    if (name != null) {
+      onUserNameUpdated(); // Trigger the callback to refresh the state
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +68,7 @@ class AppDrawer extends StatelessWidget {
                       Text(
                         userName,
                         style: AppFonts.heading.copyWith(fontSize: 20),
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 24),
                       Container(
@@ -107,7 +120,18 @@ class AppDrawer extends StatelessWidget {
                         leading: const Icon(Icons.person_outline_rounded,
                             color: AppColors.black),
                         title: const Text('Perfil', style: AppFonts.text),
-                        onTap: () {},
+                        onTap: () async {
+                          bool? result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ProfileSettings(),
+                            ),
+                          );
+
+                          if (result == true) {
+                            _refreshUserName(); // Only refresh if saved
+                          }
+                        },
                       ),
                       ListTile(
                         contentPadding: EdgeInsets.zero,

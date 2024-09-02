@@ -170,7 +170,9 @@ class _PageContentState extends State<PageContent> {
           Column(
             children: [
               if (_isLoading)
-                const CircularProgressIndicator()
+                const CircularProgressIndicator(
+                  color: AppColors.primary,
+                )
               else
                 CustomButton(
                   label: 'Entrar',

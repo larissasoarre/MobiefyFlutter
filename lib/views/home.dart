@@ -35,12 +35,20 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _refreshUserName() async {
+    await _fetchUserName();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         key: _scaffoldKey,
-        drawer: AppDrawer(scaffoldKey: _scaffoldKey, userName: _userName,),
+        drawer: AppDrawer(
+          scaffoldKey: _scaffoldKey,
+          userName: _userName,
+          onUserNameUpdated: _refreshUserName,
+        ),
         body: Stack(
           children: [
             const AppMap(),
