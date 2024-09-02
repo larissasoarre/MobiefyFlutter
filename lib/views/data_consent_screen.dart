@@ -131,7 +131,7 @@ class _PageContentState extends State<PageContent> {
               ListTile(
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                title: const Text('Desemprenho & Análise'),
+                title: const Text('Desempenho & Análise'),
                 trailing: Transform.scale(
                   scale: 0.8,
                   child: Switch(

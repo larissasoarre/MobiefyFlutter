@@ -155,7 +155,7 @@ class _AppSettingsState extends State<AppSettings> {
           child: AppBar(
             backgroundColor: AppColors.white,
             title: Text(
-              'Privacidade e Segunrança',
+              'Privacidade e Segurança',
               style: AppFonts.text.copyWith(fontWeight: FontWeight.w700),
             ),
             centerTitle: true,
