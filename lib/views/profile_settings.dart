@@ -13,6 +13,9 @@ class ProfileSettings extends StatefulWidget {
 }
 
 class _ProfileSettingsState extends State<ProfileSettings> {
+  bool _isEditing = false;
+  bool _isSaved = true;
+
   Future<void> _attemptPop() async {
     final shouldPop = await _handleUnsavedChanges();
     if (mounted && shouldPop) {
@@ -21,25 +24,30 @@ class _ProfileSettingsState extends State<ProfileSettings> {
   }
 
   Future<bool> _handleUnsavedChanges() async {
-    final pageContentState =
-        context.findAncestorStateOfType<_PageContentState>();
-    if (pageContentState != null &&
-        pageContentState._isEditing &&
-        !pageContentState._isSaved) {
+    if (_isEditing && !_isSaved) {
+      // Display a dialog if there are unsaved changes
       return (await showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              title: const Text('Unsaved Changes'),
+              title: Text(
+                'Alterações Não Salvas',
+                textAlign: TextAlign.center,
+                style: AppFonts.text.copyWith(fontWeight: FontWeight.w700),
+              ),
               content: const Text(
-                  'You have unsaved changes. Do you really want to leave?'),
-              actions: <Widget>[
+                'Você tem alterações que não foram salvas. Você realmente deseja sair?',
+                style: AppFonts.text,
+              ),
+              actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('Cancel'),
+                  child: Text('Cancelar',
+                      style: AppFonts.text.copyWith(color: Colors.red)),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text('Leave'),
+                  child: Text('Sair',
+                      style: AppFonts.text.copyWith(color: AppColors.primary)),
                 ),
               ],
             ),
@@ -47,6 +55,14 @@ class _ProfileSettingsState extends State<ProfileSettings> {
           false;
     }
     return true;
+  }
+
+  // Callback to update the editing and saving state from the child widget
+  void _updateEditingState({required bool isEditing, required bool isSaved}) {
+    setState(() {
+      _isEditing = isEditing;
+      _isSaved = isSaved;
+    });
   }
 
   @override
@@ -72,13 +88,18 @@ class _ProfileSettingsState extends State<ProfileSettings> {
         ),
       ),
       backgroundColor: AppColors.white,
-      body: const PageContent(),
+      body: PageContent(
+        onStateChange: _updateEditingState, // Pass callback to child
+      ),
     );
   }
 }
 
 class PageContent extends StatefulWidget {
-  const PageContent({super.key});
+  final Function({required bool isEditing, required bool isSaved})
+      onStateChange;
+
+  const PageContent({super.key, required this.onStateChange});
 
   @override
   State<PageContent> createState() => _PageContentState();
@@ -134,7 +155,9 @@ class _PageContentState extends State<PageContent> {
         _isLoading = false;
       });
 
-      // Navigator.of(context).pop(true);
+      // Notify parent about state changes
+      widget.onStateChange(isEditing: false, isSaved: true);
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -145,6 +168,16 @@ class _PageContentState extends State<PageContent> {
           duration: Duration(seconds: 3), // Display duration
         ),
       );
+    }
+  }
+
+  void _onFieldChanged() {
+    if (mounted) {
+      setState(() {
+        _isEditing = true;
+        _isSaved = false;
+      });
+      widget.onStateChange(isEditing: true, isSaved: false);
     }
   }
 
@@ -177,14 +210,7 @@ class _PageContentState extends State<PageContent> {
                           borderRadius: BorderRadius.circular(15),
                         ),
                       ),
-                      onChanged: (_) {
-                        if (mounted) {
-                          setState(() {
-                            _isEditing = true;
-                            _isSaved = false;
-                          });
-                        }
-                      },
+                      onChanged: (_) => _onFieldChanged(),
                     ),
                   ],
                 ),
@@ -207,14 +233,7 @@ class _PageContentState extends State<PageContent> {
                           borderRadius: BorderRadius.circular(15),
                         ),
                       ),
-                      onChanged: (_) {
-                        if (mounted) {
-                          setState(() {
-                            _isEditing = true;
-                            _isSaved = false;
-                          });
-                        }
-                      },
+                      onChanged: (_) => _onFieldChanged(),
                     ),
                   ],
                 ),
