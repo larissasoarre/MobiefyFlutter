@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mobiefy_flutter/constants/colors.dart';
 import 'package:mobiefy_flutter/constants/fonts.dart';
 import 'package:mobiefy_flutter/services/firestore_service.dart';
+import 'package:mobiefy_flutter/views/privacy_security_settings.dart';
 import 'package:mobiefy_flutter/views/login_screen.dart';
 import 'package:mobiefy_flutter/views/profile_settings.dart';
 import 'package:mobiefy_flutter/widgets/button.dart';
@@ -135,11 +136,18 @@ class AppDrawer extends StatelessWidget {
                       ),
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        leading:
-                            const Icon(Icons.settings, color: AppColors.black),
-                        title:
-                            const Text('Configurações', style: AppFonts.text),
-                        onTap: () {},
+                        leading: const Icon(Icons.lock_outline_rounded,
+                            color: AppColors.black),
+                        title: const Text('Privacidade e Segunrança',
+                            style: AppFonts.text),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AppSettings(),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
