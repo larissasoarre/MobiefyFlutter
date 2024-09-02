@@ -318,7 +318,9 @@ class _PageContentState extends State<PageContent> {
           Column(
             children: [
               if (_isLoading)
-                const CircularProgressIndicator() // Loader
+                const CircularProgressIndicator(
+                  color: AppColors.primary,
+                ) // Loader
               else
                 CustomButton(
                   label: 'Cadastrar',

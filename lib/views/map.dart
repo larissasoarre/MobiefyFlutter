@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:mobiefy_flutter/constants/colors.dart';
 
 class AppMap extends StatefulWidget {
   const AppMap({super.key});
@@ -51,8 +52,9 @@ class _AppMapState extends State<AppMap> {
     return Scaffold(
       body: initialPosition == null
           ? const Center(
-              child:
-                  CircularProgressIndicator()) // Show a loading indicator while the location is being fetched
+              child: CircularProgressIndicator(
+              color: AppColors.primary,
+            ))
           : GoogleMap(
               initialCameraPosition:
                   CameraPosition(target: initialPosition!, zoom: 17),
