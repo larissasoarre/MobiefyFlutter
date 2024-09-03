@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mobiefy_flutter/views/home.dart';
 import 'package:mobiefy_flutter/views/loading_screen.dart';
 import 'package:mobiefy_flutter/views/login_screen.dart';
@@ -13,6 +14,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform, // Initialize Firebase
   );
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp()); // Run the app after Firebase is initialized
 }
 

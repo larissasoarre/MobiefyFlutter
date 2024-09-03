@@ -42,6 +42,9 @@ dependencies:
   shared_preferences: ^2.3.2
   cloud_firestore: ^5.3.0
   provider: ^6.1.2
+  uuid: ^4.5.0
+  http: ^1.2.2
+  flutter_dotenv: ^5.1.0
 
 dev_dependencies:
   flutter_test:
@@ -72,6 +75,7 @@ flutter:
     - lib/assets/images/permission_denied.png
     - lib/assets/images/data_permission.png
     - lib/assets/images/user_standard_photo.png
+    - .env
   fonts:
     - family: Roboto
       fonts:
