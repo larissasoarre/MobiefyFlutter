@@ -89,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<Map<String, String>> _fetchPlaceDetails(String placeId) async {
-    String apiKey = 'AIzaSyDvdYJPX5CMrzYZRYIe2Vo3X5RCNU8Rop8';
+    String? apiKey = dotenv.env['GOOGLE_MAPS_API'];
     String requestUrl =
         'https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=$apiKey';
 
