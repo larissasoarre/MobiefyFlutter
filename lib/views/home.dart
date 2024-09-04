@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mobiefy_flutter/constants/colors.dart';
 import 'package:mobiefy_flutter/services/firestore_service.dart';
 import 'package:mobiefy_flutter/views/map.dart';
@@ -28,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final FocusNode _searchFocusNode = FocusNode();
   var uuid = const Uuid();
   List<dynamic> listOfLocations = [];
+  LatLng endRoute = LatLng(0, 0);
 
   @override
   void initState() {
@@ -88,56 +90,61 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<Map<String, String>> _fetchPlaceDetails(String placeId) async {
+  Future<Map<String, dynamic>> _fetchPlaceDetails(String placeId) async {
     String? apiKey = dotenv.env['GOOGLE_MAPS_API'];
     String requestUrl =
         'https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=$apiKey';
 
-    var response = await http.get(Uri.parse(requestUrl));
-    if (response.statusCode == 200) {
-      var data = json.decode(response.body);
-      if (data['status'] == 'OK') {
-        var result = data['result'];
-        var addressComponents = result['address_components'] as List<dynamic>;
+    try {
+      var response = await http.get(Uri.parse(requestUrl));
+      print('Place Details Response: ${response.body}'); // Debug response body
 
-        // Initialize variables
-        String street = '';
-        String number = '';
-        String city = '';
-        String postalCode = '';
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        if (data['status'] == 'OK') {
+          var result = data['result'];
+          var addressComponents = result['address_components'] as List<dynamic>;
 
-        // Parse address components
-        for (var component in addressComponents) {
-          var types = component['types'] as List<dynamic>;
-          var longName = component['long_name'] as String;
+          String street = '';
+          String number = '';
+          String city = '';
+          String postalCode = '';
+          double latitude = result['geometry']['location']['lat'];
+          double longitude = result['geometry']['location']['lng'];
 
-          if (types.contains('street_number')) {
-            number = longName;
-          } else if (types.contains('route')) {
-            street = longName;
-          } else if (types.contains('locality')) {
-            city = longName;
-          } else if (types.contains('postal_code')) {
-            postalCode = longName;
+          for (var component in addressComponents) {
+            var types = component['types'] as List<dynamic>;
+            var longName = component['long_name'] as String;
+
+            if (types.contains('street_number')) {
+              number = longName;
+            } else if (types.contains('route')) {
+              street = longName;
+            } else if (types.contains('locality')) {
+              city = longName;
+            } else if (types.contains('postal_code')) {
+              postalCode = longName;
+            }
           }
-        }
 
-        return {
-          'street': street,
-          'number': number,
-          'city': city,
-          'postalCode': postalCode,
-        };
-      } else {
-        if (kDebugMode) {
+          return {
+            'street': street,
+            'number': number,
+            'city': city,
+            'postalCode': postalCode,
+            'latitude': latitude,
+            'longitude': longitude,
+          };
+        } else {
           print('Details API Error: ${data['status']}');
+          return {};
         }
+      } else {
+        print('Request failed with status: ${response.statusCode}');
         return {};
       }
-    } else {
-      if (kDebugMode) {
-        print('Request failed with status: ${response.statusCode}');
-      }
+    } catch (e) {
+      print('Exception occurred: $e');
       return {};
     }
   }
@@ -175,7 +182,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           body: Stack(
             children: [
-              const AppMap(),
+              AppMap(
+                // endRoute: LatLng(37.4151, -122.0970),
+                endRoute: endRoute,
+              ),
               Positioned(
                 top: 40,
                 left: 16,
@@ -308,7 +318,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         location["description"] ?? '';
                                     var placeId = location["place_id"] ?? '';
 
-                                    return FutureBuilder<Map<String, String>>(
+                                    return FutureBuilder<Map<String, dynamic>>(
                                       future: _fetchPlaceDetails(placeId),
                                       builder: (context, snapshot) {
                                         if (snapshot.hasError) {
@@ -323,8 +333,39 @@ class _HomeScreenState extends State<HomeScreen> {
                                             city: details['city'] ?? '',
                                             postalCode:
                                                 details['postalCode'] ?? '',
-                                            onPressed: () {
-                                              // Handle onPressed action
+                                            onPressed: () async {
+                                              var placeId =
+                                                  location["place_id"] ?? '';
+                                              var details =
+                                                  await _fetchPlaceDetails(
+                                                      placeId);
+                                              if (details.isNotEmpty) {
+                                                double? latitude =
+                                                    details['latitude'];
+                                                double? longitude =
+                                                    details['longitude'];
+                                                if (latitude != null &&
+                                                    longitude != null) {
+                                                  endRoute = LatLng(
+                                                      latitude, longitude);
+                                                  setState(() {
+                                                    _isSearchFocused = false;
+                                                    _searchController.clear();
+                                                  });
+                                                  FocusScope.of(context)
+                                                      .unfocus();
+                                                } else {
+                                                  if (kDebugMode) {
+                                                    print(
+                                                        'Error: Latitude or Longitude is null');
+                                                  }
+                                                }
+                                              } else {
+                                                if (kDebugMode) {
+                                                  print(
+                                                      'Error: Details are empty');
+                                                }
+                                              }
                                             },
                                           );
                                         }
