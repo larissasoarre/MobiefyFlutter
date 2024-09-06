@@ -9,8 +9,12 @@ import 'package:mobiefy_flutter/constants/colors.dart';
 
 class AppMap extends StatefulWidget {
   final LatLng endRoute;
+  final TravelMode travelMode;
 
-  const AppMap({super.key, required this.endRoute});
+  const AppMap(
+      {super.key,
+      required this.endRoute,
+      this.travelMode = TravelMode.walking});
 
   @override
   State<AppMap> createState() => _AppMapState();
@@ -40,7 +44,8 @@ class _AppMapState extends State<AppMap> {
   @override
   void didUpdateWidget(covariant AppMap oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.endRoute != oldWidget.endRoute) {
+    if (widget.endRoute != oldWidget.endRoute ||
+        widget.travelMode != oldWidget.travelMode) {
       getPolyPoints(); // Fetch new polyline points if routes change
     }
   }
@@ -119,7 +124,7 @@ class _AppMapState extends State<AppMap> {
               initialPosition!.latitude, initialPosition!.longitude),
           destination:
               PointLatLng(widget.endRoute.latitude, widget.endRoute.longitude),
-          mode: TravelMode.driving,
+          mode: widget.travelMode,
         ),
       );
 
