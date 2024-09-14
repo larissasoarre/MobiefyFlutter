@@ -1,7 +1,7 @@
 # Mobiefy Flutter 🛵
 
 ## Challenge Description
-This project is a mobile application developed in Kotlin, aimed at providing a comprehensive solution for urban mobility. The [Mobify](https://mobiefy.netlify.app) app integrates multimodal routes, allowing users to combine various modes of transportation available in the cities. Users have the 
+This project is a mobile application developed in Kotlin, aimed at providing a comprehensive solution for urban mobility. The [Mobiefy](https://mobiefy.netlify.app) app integrates multimodal routes, allowing users to combine various modes of transportation available in the cities. Users have the 
 flexibility to adjust their routes according to their mobility needs, including options adapted for individuals with reduced mobility.
 
 Accessibility is a priority for us, and Mobify has been designed to be accessible to everyone. The app includes features that facilitate the daily lives of individuals with reduced mobility, ensuring an inclusive user experience.
@@ -20,7 +20,7 @@ Features already available in the software:
 **Main Screen**: it's possible to view a map with the user's current location
 
 
-## Pre Requirements ‼️
+<!-- ## Pre Requirements ‼️ -->
 
 
 ## How to Install ⚙️
@@ -37,6 +37,25 @@ To install in developer mode, follow the step-by-step:
     flutter pub get
 ```
 
+<!-- ## Firebase Setup 🖥 -->
+
+## Google Maps API Setup 🌎
+To enable Google Maps functionality in the app, follow these steps:
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/) and generate a Google Maps API key.
+
+2. In your Android project, create a ```secrets.properties``` file in the android directory.
+
+3. Insert the following line in the ```secrets.properties``` file:
+```
+    GOOGLE_MAPS_API=your_api_key_here
+```
+4. Create a ```.env``` file at the root of your project.
+
+5. Add the following line to the ```.env``` file:
+```
+    GOOGLE_MAPS_API=your_api_key_here
+```
 
 ## How to Run 🕹
 
@@ -63,9 +82,6 @@ For development purposes, where you can see changes in real-time as you edit the
 ```
 % press play (Run Code) or press F5
 ```
-
-
-## Firebase Setup 🖥
 
 
 ## Design and Prototyping 🎨
