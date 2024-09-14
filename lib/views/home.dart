@@ -11,7 +11,6 @@ import 'package:mobiefy_flutter/constants/fonts.dart';
 import 'package:mobiefy_flutter/services/firestore_service.dart';
 import 'package:mobiefy_flutter/views/map.dart';
 import 'package:mobiefy_flutter/widgets/app_drawer.dart';
-import 'package:mobiefy_flutter/widgets/button.dart';
 import 'package:mobiefy_flutter/widgets/circular_button.dart';
 import 'package:mobiefy_flutter/widgets/location_list_tile.dart';
 import 'package:uuid/uuid.dart';

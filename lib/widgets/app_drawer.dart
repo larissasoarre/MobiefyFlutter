@@ -6,6 +6,7 @@ import 'package:mobiefy_flutter/services/firestore_service.dart';
 import 'package:mobiefy_flutter/views/privacy_security_settings.dart';
 import 'package:mobiefy_flutter/views/login_screen.dart';
 import 'package:mobiefy_flutter/views/profile_settings.dart';
+import 'package:mobiefy_flutter/views/user_data.dart';
 import 'package:mobiefy_flutter/widgets/button.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -72,12 +73,20 @@ class AppDrawer extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 24),
-                      Container(
-                        padding: const EdgeInsets.all(18),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(15),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          padding: const EdgeInsets.all(18),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15)),
                         ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const UserData()),
+                          );
+                        },
                         child: Row(
                           children: [
                             Expanded(

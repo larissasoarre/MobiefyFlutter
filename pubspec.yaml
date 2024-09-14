@@ -78,6 +78,8 @@ flutter:
     - lib/assets/images/data_permission.png
     - lib/assets/images/user_standard_photo.png
     - lib/assets/images/destination_marker.png
+    - lib/assets/images/user_data_form.png
+    - lib/assets/images/contact.png
     - .env
   fonts:
     - family: Roboto
