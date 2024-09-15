@@ -4,6 +4,7 @@ import 'package:mobiefy_flutter/constants/colors.dart';
 import 'package:mobiefy_flutter/constants/fonts.dart';
 import 'package:mobiefy_flutter/services/firestore_service.dart';
 import 'package:mobiefy_flutter/views/emergency_contact_settings.dart';
+import 'package:mobiefy_flutter/views/mobieclub.dart';
 import 'package:mobiefy_flutter/views/privacy_security_settings.dart';
 import 'package:mobiefy_flutter/views/login_screen.dart';
 import 'package:mobiefy_flutter/views/profile_settings.dart';
@@ -206,6 +207,29 @@ class _AppDrawerState extends State<AppDrawer> {
                             MaterialPageRoute(
                               builder: (context) =>
                                   const EmergencyContactSettings(),
+                            ),
+                          );
+
+                          if (result == true) {
+                            _refreshUserName(); // Refresh if the profile was updated
+                          }
+                        },
+                      ),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Padding(
+                          padding: EdgeInsets.only(left: 4, right: 3.5),
+                          child: Image(
+                              image:
+                                  AssetImage("lib/assets/images/mobieclub.png"),
+                              width: 18),
+                        ),
+                        title: const Text('MobieClub', style: AppFonts.text),
+                        onTap: () async {
+                          bool? result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const MobieClub(),
                             ),
                           );
 

@@ -80,6 +80,10 @@ flutter:
     - lib/assets/images/destination_marker.png
     - lib/assets/images/user_data_form.png
     - lib/assets/images/contact.png
+    - lib/assets/images/mobieclub.png
+    - lib/assets/images/free.png
+    - lib/assets/images/premium.png
+    - lib/assets/images/premium_student.png
     - .env
   fonts:
     - family: Roboto
