@@ -1,21 +1,19 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:mobiefy_flutter/constants/colors.dart';
 import 'package:mobiefy_flutter/constants/fonts.dart';
 import 'package:mobiefy_flutter/services/firestore_service.dart';
-import 'package:mobiefy_flutter/views/user_data_success.dart';
 import 'package:mobiefy_flutter/widgets/button.dart';
 
-class EmergencyContactForm extends StatefulWidget {
-  const EmergencyContactForm({super.key});
+class EmergencyContactSettings extends StatefulWidget {
+  const EmergencyContactSettings({super.key});
 
   @override
-  State<EmergencyContactForm> createState() => _EmergencyContactFormState();
+  State<EmergencyContactSettings> createState() =>
+      _EmergencyContactSettingsState();
 }
 
-class _EmergencyContactFormState extends State<EmergencyContactForm> {
+class _EmergencyContactSettingsState extends State<EmergencyContactSettings> {
   bool _isEditing = false;
   bool _isSaved = true;
 
@@ -80,7 +78,7 @@ class _EmergencyContactFormState extends State<EmergencyContactForm> {
           child: AppBar(
             backgroundColor: AppColors.white,
             title: Text(
-              'Configuração da Conta',
+              'Botão de Emergência',
               style: AppFonts.text.copyWith(fontWeight: FontWeight.w700),
             ),
             centerTitle: true,
@@ -110,21 +108,34 @@ class PageContent extends StatefulWidget {
 }
 
 class _PageContentState extends State<PageContent> {
-  final TextEditingController _emergencyContactNameController =
-      TextEditingController();
-  final TextEditingController _emergencyContactNumberController =
+  final TextEditingController _contactNameController = TextEditingController();
+  final TextEditingController _contactNumberController =
       TextEditingController();
 
   bool _isEditing = false;
   bool _isSaved = true;
   bool _isLoading = false;
   late String _uid;
-  bool _performanceAnalyticsAgreement = false;
 
   @override
   void initState() {
     super.initState();
     _uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    if (_uid.isNotEmpty) {
+      _fetchUserData();
+    }
+  }
+
+  Future<void> _fetchUserData() async {
+    final userData = await FirestoreService().getUserDetails(_uid);
+
+    if (mounted && userData != null) {
+      setState(() {
+        _contactNameController.text = userData['emergency_contact_name'] ?? '';
+        _contactNumberController.text =
+            userData['emergency_contact_number'] ?? '';
+      });
+    }
   }
 
   Future<void> _onSave() async {
@@ -132,46 +143,32 @@ class _PageContentState extends State<PageContent> {
       _isLoading = true;
     });
 
-    try {
-      if (_emergencyContactNameController.text.isNotEmpty ||
-          _emergencyContactNumberController.text.isNotEmpty) {
-        await FirestoreService().addEmergencyContact(
-          _uid,
-          _emergencyContactNameController.text.isNotEmpty
-              ? _emergencyContactNameController.text
-              : null,
-          _emergencyContactNumberController.text.isNotEmpty
-              ? _emergencyContactNumberController.text
-              : null,
-        );
-      }
+    await FirestoreService().updateEmergencyContactDetails(
+      _uid,
+      _contactNameController.text,
+      _contactNumberController.text,
+    );
 
+    if (mounted) {
       setState(() {
         _isSaved = true;
         _isEditing = false;
         _isLoading = false;
       });
 
+      // Notify parent about state changes
       widget.onStateChange(isEditing: false, isSaved: true);
 
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const UserDataSuccess()),
-        );
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Failed to save user data: $e');
-      }
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erro ao salvar dados: $e'),
-            backgroundColor: Colors.red,
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Dados atualizados com sucesso!',
+            textAlign: TextAlign.center,
           ),
-        );
-      }
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 3), // Display duration
+        ),
+      );
     }
   }
 
@@ -196,21 +193,27 @@ class _PageContentState extends State<PageContent> {
           Form(
             child: Column(
               children: [
+                const Text(
+                  "Para sua segurança, configure um contato de emergência. Assim, se você se sentir em perigo, poderá acionar o botão de emergência e uma ligação será feita para a pessoa escolhida — seja um amigo, familiar ou o número de emergência local.",
+                  style: AppFonts.text,
+                ),
+                const SizedBox(height: 40.0),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("Nome do Contato de Emergência*",
+                    const Text("Nome do Contato de Emergência",
                         style: AppFonts.inputLabel),
                     const SizedBox(
                       height: 6,
                     ),
                     TextFormField(
-                      controller: _emergencyContactNameController,
+                      controller: _contactNameController,
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: AppColors.brightShade,
+                        fillColor: AppColors.white,
                         border: OutlineInputBorder(
-                          borderSide: BorderSide.none,
+                          borderSide:
+                              const BorderSide(color: AppColors.primary),
                           borderRadius: BorderRadius.circular(15),
                         ),
                       ),
@@ -218,28 +221,26 @@ class _PageContentState extends State<PageContent> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 30.0),
+                const SizedBox(height: 20.0),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("Número do Contato de Emergência*",
+                    const Text("Número do Contato de Emergência",
                         style: AppFonts.inputLabel),
                     const SizedBox(
                       height: 6,
                     ),
                     TextFormField(
-                      controller: _emergencyContactNumberController,
+                      controller: _contactNumberController,
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: AppColors.brightShade,
+                        fillColor: AppColors.white,
                         border: OutlineInputBorder(
-                          borderSide: BorderSide.none,
+                          borderSide:
+                              const BorderSide(color: AppColors.primary),
                           borderRadius: BorderRadius.circular(15),
                         ),
                       ),
-                      keyboardType: TextInputType.phone,
-                      textInputAction: TextInputAction.done,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       onChanged: (_) => _onFieldChanged(),
                     ),
                   ],
@@ -249,6 +250,7 @@ class _PageContentState extends State<PageContent> {
           ),
           Column(
             children: [
+              const SizedBox(height: 30.0),
               if (_isLoading)
                 const CircularProgressIndicator(
                   color: AppColors.primary,

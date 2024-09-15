@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mobiefy_flutter/constants/colors.dart';
 import 'package:mobiefy_flutter/constants/fonts.dart';
 import 'package:mobiefy_flutter/services/firestore_service.dart';
+import 'package:mobiefy_flutter/views/emergency_contact_settings.dart';
 import 'package:mobiefy_flutter/views/privacy_security_settings.dart';
 import 'package:mobiefy_flutter/views/login_screen.dart';
 import 'package:mobiefy_flutter/views/profile_settings.dart';
@@ -191,6 +192,26 @@ class _AppDrawerState extends State<AppDrawer> {
                               builder: (context) => const AppSettings(),
                             ),
                           );
+                        },
+                      ),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.warning_amber_rounded,
+                            color: AppColors.black),
+                        title: const Text('Botão de Emergência',
+                            style: AppFonts.text),
+                        onTap: () async {
+                          bool? result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const EmergencyContactSettings(),
+                            ),
+                          );
+
+                          if (result == true) {
+                            _refreshUserName(); // Refresh if the profile was updated
+                          }
                         },
                       ),
                     ],
