@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobiefy_flutter/constants/colors.dart';
 import 'package:mobiefy_flutter/constants/fonts.dart';
 import 'package:mobiefy_flutter/views/emergency_contact_form.dart';
+import 'package:mobiefy_flutter/views/home.dart';
 import 'package:mobiefy_flutter/views/user_data_success.dart';
 import 'package:mobiefy_flutter/widgets/button.dart';
 
@@ -84,7 +85,7 @@ class _PageContentState extends State<PageContent> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const UserDataSuccess()),
+                          builder: (context) => const HomeScreen()),
                     );
                   },
                 ),

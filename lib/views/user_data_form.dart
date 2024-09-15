@@ -5,6 +5,7 @@ import 'package:mobiefy_flutter/constants/colors.dart';
 import 'package:mobiefy_flutter/constants/fonts.dart';
 import 'package:mobiefy_flutter/services/firestore_service.dart';
 import 'package:mobiefy_flutter/views/emergency_contact.dart';
+import 'package:mobiefy_flutter/views/user_data_success.dart';
 import 'package:mobiefy_flutter/widgets/button.dart';
 
 class UserDataForm extends StatefulWidget {
@@ -31,6 +32,7 @@ class _UserDataFormState extends State<UserDataForm> {
       return (await showDialog(
             context: context,
             builder: (context) => AlertDialog(
+              backgroundColor: AppColors.white,
               title: Text(
                 'Alterações Não Salvas',
                 textAlign: TextAlign.center,
@@ -70,30 +72,32 @@ class _UserDataFormState extends State<UserDataForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(80.0),
-        child: Container(
-          margin: const EdgeInsets.only(top: 20.0),
-          alignment: Alignment.bottomCenter,
-          child: AppBar(
-            backgroundColor: AppColors.white,
-            title: Text(
-              'Configuração da Conta',
-              style: AppFonts.text.copyWith(fontWeight: FontWeight.w700),
-            ),
-            centerTitle: true,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_rounded),
-              onPressed: _attemptPop,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(80.0),
+          child: Container(
+            margin: const EdgeInsets.only(top: 20.0),
+            color: AppColors.white,
+            alignment: Alignment.bottomCenter,
+            child: AppBar(
+              backgroundColor: AppColors.white,
+              title: Text(
+                'Configuração da Conta',
+                style: AppFonts.text.copyWith(fontWeight: FontWeight.w700),
+              ),
+              centerTitle: true,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios_rounded),
+                onPressed: _attemptPop,
+              ),
             ),
           ),
         ),
-      ),
-      backgroundColor: AppColors.white,
-      body: PageContent(
-        onStateChange: _updateEditingState, // Pass callback to child
-      ),
-    );
+        backgroundColor: AppColors.white,
+        body: SingleChildScrollView(
+          child: PageContent(
+            onStateChange: _updateEditingState,
+          ),
+        ));
   }
 }
 
@@ -113,6 +117,14 @@ class _PageContentState extends State<PageContent> {
   String? _selectedGender;
   String? _selectedCity;
   String? _selectedDisability;
+  bool _completedData = false;
+
+  String _dobError = '';
+  String _genderError = '';
+  String _cityError = '';
+  String _disabilityError = '';
+
+  String _emergencyContactNumber = '';
 
   bool _isEditing = false;
   bool _isSaved = true;
@@ -186,24 +198,79 @@ class _PageContentState extends State<PageContent> {
   void initState() {
     super.initState();
     _uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    if (_uid.isNotEmpty) {
+      _fetchUserData();
+    }
+  }
+
+  // Fetch user data to get the current state of emergencyContactNumber
+  Future<void> _fetchUserData() async {
+    final userData = await FirestoreService().getUserDetails(_uid);
+
+    if (mounted && userData != null) {
+      setState(() {
+        _emergencyContactNumber = userData['emergency_contact_number'] ?? '';
+      });
+    }
   }
 
   Future<void> _onSave() async {
     setState(() {
       _isLoading = true;
+      _completedData = true;
     });
 
+    bool hasError = false;
+
+    if (_dobController.text.isEmpty) {
+      setState(() {
+        _dobError = 'Este campo é obrigatório.';
+        hasError = true;
+      });
+    }
+
+    if (_selectedGender == null) {
+      setState(() {
+        _genderError = 'Este campo é obrigatório.';
+        hasError = true;
+      });
+    }
+
+    if (_selectedCity == null) {
+      setState(() {
+        _cityError = 'Este campo é obrigatório.';
+        hasError = true;
+      });
+    }
+
+    if (_selectedDisability == null) {
+      setState(() {
+        _disabilityError = 'Este campo é obrigatório.';
+        hasError = true;
+      });
+    }
+
+    // Stop if there are validation errors
+    if (hasError) {
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
     try {
-      if (_dobController.text.isNotEmpty ||
-          _selectedGender != null ||
-          _selectedCity != null ||
+      if (_dobController.text.isNotEmpty &&
+          _selectedGender != null &&
+          _selectedCity != null &&
           _selectedDisability != null) {
         await FirestoreService().updateUserDetails(
           _uid,
           _dobController.text.isNotEmpty ? _dobController.text : null,
           _selectedGender,
+          _pronounsController.text.isNotEmpty ? _pronounsController.text : null,
           _selectedCity,
           _selectedDisability,
+          _completedData,
         );
       }
 
@@ -216,10 +283,17 @@ class _PageContentState extends State<PageContent> {
       widget.onStateChange(isEditing: false, isSaved: true);
 
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const EmergencyContact()),
-        );
+        if (_emergencyContactNumber.isEmpty) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const EmergencyContact()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const UserDataSuccess()),
+          );
+        }
       }
     } catch (e) {
       if (kDebugMode) {
@@ -305,9 +379,19 @@ class _PageContentState extends State<PageContent> {
                           onPressed: () => _selectDate(context),
                         ),
                       ),
-                      readOnly:
-                          true, // Make the field non-editable (to prevent typing)
+                      readOnly: true,
                     ),
+                    if (_dobError.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          _dobError,
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
                 const SizedBox(height: 30.0),
@@ -340,6 +424,17 @@ class _PageContentState extends State<PageContent> {
                         ),
                       ),
                     ),
+                    if (_genderError.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          _genderError,
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
                 const SizedBox(height: 30.0),
@@ -368,7 +463,7 @@ class _PageContentState extends State<PageContent> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("Cidade", style: AppFonts.inputLabel),
+                    const Text("Cidade*", style: AppFonts.inputLabel),
                     const SizedBox(height: 6),
                     DropdownButtonFormField<String>(
                       value: _selectedCity,
@@ -394,13 +489,24 @@ class _PageContentState extends State<PageContent> {
                         ),
                       ),
                     ),
+                    if (_cityError.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          _cityError,
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
                 const SizedBox(height: 30.0),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("Deficiência", style: AppFonts.inputLabel),
+                    const Text("Deficiência*", style: AppFonts.inputLabel),
                     const SizedBox(height: 6),
                     DropdownButtonFormField<String>(
                       value: _selectedDisability,
@@ -426,7 +532,26 @@ class _PageContentState extends State<PageContent> {
                         ),
                       ),
                     ),
+                    if (_disabilityError.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          _disabilityError,
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
                   ],
+                ),
+                const SizedBox(height: 10.0),
+                Container(
+                  alignment: Alignment.topLeft,
+                  child: const Text(
+                    '* Campos obrigatórios',
+                    textAlign: TextAlign.left,
+                  ),
                 ),
                 const SizedBox(height: 30.0),
               ],

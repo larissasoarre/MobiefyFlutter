@@ -9,8 +9,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mobiefy_flutter/constants/colors.dart';
 import 'package:mobiefy_flutter/constants/fonts.dart';
 import 'package:mobiefy_flutter/services/firestore_service.dart';
+import 'package:mobiefy_flutter/views/emergency_contact.dart';
 import 'package:mobiefy_flutter/views/map.dart';
 import 'package:mobiefy_flutter/widgets/app_drawer.dart';
+import 'package:mobiefy_flutter/widgets/button.dart';
 import 'package:mobiefy_flutter/widgets/circular_button.dart';
 import 'package:mobiefy_flutter/widgets/location_list_tile.dart';
 import 'package:uuid/uuid.dart';
@@ -31,6 +33,8 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isPolylineDrawn = false;
   final FocusNode _searchFocusNode = FocusNode();
   var uuid = const Uuid();
+  late String _uid;
+  String _emergencyContactNumber = '';
   List<dynamic> listOfLocations = [];
   LatLng endRoute = const LatLng(0, 0);
   bool routeStarted = false;
@@ -40,6 +44,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _fetchUserName();
+    _uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    if (_uid.isNotEmpty) {
+      _fetchUserData();
+    }
 
     // Add a listener to the focus node to update the _isSearchFocused state
     _searchFocusNode.addListener(() {
@@ -58,6 +66,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   _onChange() {
     _locationSuggestion(_searchController.text);
+  }
+
+  // Fetch user data to get the current state of emergencyContactNumber
+  Future<void> _fetchUserData() async {
+    final userData = await FirestoreService().getUserDetails(_uid);
+
+    if (mounted && userData != null) {
+      setState(() {
+        _emergencyContactNumber = userData['emergency_contact_number'] ?? '';
+      });
+    }
   }
 
   Future<void> _locationSuggestion(String input) async {
@@ -230,6 +249,71 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
+              Positioned(
+                top: 40,
+                right: 16,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 0),
+                      ),
+                    ],
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.warning_amber_rounded,
+                        color: AppColors.primary),
+                    onPressed: () {
+                      _emergencyContactNumber.isEmpty
+                          ? Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const EmergencyContact(),
+                              ),
+                            )
+                          : showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                backgroundColor: AppColors.white,
+                                title: Text(
+                                  'Emergência',
+                                  textAlign: TextAlign.center,
+                                  style: AppFonts.text
+                                      .copyWith(fontWeight: FontWeight.w700),
+                                ),
+                                content: const Text(
+                                  'Você clicou no botão de emergência. Ao escolher ligar para o 190, sua localização e dados serão compartilhados com as autoridades. Para quem deseja ligar?',
+                                  style: AppFonts.text,
+                                  textAlign: TextAlign.center,
+                                ),
+                                actions: [
+                                  CustomButton(
+                                    color: AppColors.secondary,
+                                    textColor: AppColors.white,
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(false),
+                                    label: '190',
+                                  ),
+                                  const SizedBox(height: 10),
+                                  CustomButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(false),
+                                    label: 'Contato de Emergência',
+                                  ),
+                                ],
+                              ),
+                            );
+                    },
+                    padding: const EdgeInsets.all(10),
+                    iconSize: 24, // Size of the icon
+                  ),
+                ),
+              ),
               DraggableScrollableSheet(
                 initialChildSize: _isSearchFocused ? 0.79 : 0.13,
                 maxChildSize: _isSearchFocused
@@ -339,8 +423,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         _isSearchFocused =
                                                             false; // Lose focus
                                                       });
-                                                      FocusScope.of(context)
-                                                          .unfocus(); // Minimize the keyboard
+                                                      if (mounted) {
+                                                        FocusScope.of(context)
+                                                            .unfocus();
+                                                      }
                                                     } else {
                                                       if (kDebugMode) {
                                                         print(
