@@ -32,6 +32,7 @@ class _AppSettingsState extends State<AppSettings> {
       return (await showDialog(
             context: context,
             builder: (context) => AlertDialog(
+              backgroundColor: AppColors.white,
               title: Text('Alterações Não Salvas',
                   textAlign: TextAlign.center,
                   style: AppFonts.text.copyWith(fontWeight: FontWeight.w700)),

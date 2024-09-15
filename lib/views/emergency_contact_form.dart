@@ -32,6 +32,7 @@ class _EmergencyContactFormState extends State<EmergencyContactForm> {
       return (await showDialog(
             context: context,
             builder: (context) => AlertDialog(
+              backgroundColor: AppColors.white,
               title: Text(
                 'Alterações Não Salvas',
                 textAlign: TextAlign.center,

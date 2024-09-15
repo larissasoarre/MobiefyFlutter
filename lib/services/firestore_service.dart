@@ -28,13 +28,47 @@ class FirestoreService {
     String uid,
     String? dateOfBirth,
     String? gender,
+    String? pronouns,
     String? city,
     String? disability,
+    bool? completedData,
   ) async {
     try {
       await _db.collection('users').doc(uid).update({
         if (dateOfBirth != null) 'date_of_birth': dateOfBirth,
         if (gender != null) 'gender': gender,
+        if (pronouns != null) 'pronouns': pronouns,
+        if (city != null) 'city': city,
+        if (disability != null) 'disability': disability,
+        if (completedData != null) 'completed_data': completedData,
+      });
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error updating user details in Firestore: $e");
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> updateAllUserDetails(
+    String uid,
+    String fullName,
+    String email,
+    String? dateOfBirth,
+    String? gender,
+    String? pronouns,
+    String? city,
+    String? disability,
+    bool performanceAnalyticsAgreement,
+  ) async {
+    try {
+      await _db.collection('users').doc(uid).update({
+        'full_name': fullName,
+        'email': email,
+        'performance_analytics_agreement': performanceAnalyticsAgreement,
+        if (dateOfBirth != null) 'date_of_birth': dateOfBirth,
+        if (gender != null) 'gender': gender,
+        if (pronouns != null) 'pronouns': pronouns,
         if (city != null) 'city': city,
         if (disability != null) 'disability': disability,
       });

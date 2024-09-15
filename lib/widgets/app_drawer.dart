@@ -9,21 +9,53 @@ import 'package:mobiefy_flutter/views/profile_settings.dart';
 import 'package:mobiefy_flutter/views/user_data.dart';
 import 'package:mobiefy_flutter/widgets/button.dart';
 
-class AppDrawer extends StatelessWidget {
+class AppDrawer extends StatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
   final String userName;
-  final VoidCallback onUserNameUpdated;
 
-  const AppDrawer(
-      {super.key,
-      required this.scaffoldKey,
-      required this.userName,
-      required this.onUserNameUpdated});
+  const AppDrawer({
+    super.key,
+    required this.scaffoldKey,
+    required this.userName,
+    required Future<void> Function() onUserNameUpdated,
+  });
+
+  @override
+  State<AppDrawer> createState() => _AppDrawerState();
+}
+
+class _AppDrawerState extends State<AppDrawer> {
+  late String _uid;
+  late String _userName;
+  bool _completedData = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _userName = widget.userName;
+    _uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    if (_uid.isNotEmpty) {
+      _fetchUserData();
+    }
+  }
 
   Future<void> _refreshUserName() async {
     final name = await _fetchUserName();
     if (name != null) {
-      onUserNameUpdated(); // Trigger the callback to refresh the state
+      setState(() {
+        _userName = name; // Update the state with the new username
+      });
+    }
+  }
+
+  // Fetch user data to get the current state of completedData
+  Future<void> _fetchUserData() async {
+    final userData = await FirestoreService().getUserDetails(_uid);
+
+    if (mounted && userData != null) {
+      setState(() {
+        _completedData = userData['completed_data'] ?? false;
+      });
     }
   }
 
@@ -68,62 +100,65 @@ class AppDrawer extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        userName,
+                        _userName, // Use the updated userName from state
                         style: AppFonts.heading.copyWith(fontSize: 20),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 24),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          padding: const EdgeInsets.all(18),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15)),
-                        ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const UserData()),
-                          );
-                        },
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                      !_completedData
+                          ? ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                padding: const EdgeInsets.all(18),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15)),
+                              ),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const UserData()),
+                                );
+                              },
+                              child: Row(
                                 children: [
-                                  Text(
-                                    "Concluir a configuração da conta",
-                                    style: AppFonts.text.copyWith(
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.white,
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Concluir a configuração da conta",
+                                          style: AppFonts.text.copyWith(
+                                            fontWeight: FontWeight.w700,
+                                            color: AppColors.white,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 7),
+                                        Text(
+                                          "Desbloqueie todos os serviços de mobilidade no Mobiefy",
+                                          style: AppFonts.text
+                                              .copyWith(color: AppColors.white),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  const SizedBox(height: 7),
-                                  Text(
-                                    "Desbloqueie todos os serviços de mobilidade no Mobiefy",
-                                    style: AppFonts.text
-                                        .copyWith(color: AppColors.white),
+                                  SizedBox(
+                                    width: 16,
+                                    child: IconButton(
+                                      onPressed: () {},
+                                      icon: const Icon(
+                                          Icons.arrow_forward_ios_rounded),
+                                      padding: EdgeInsets.zero,
+                                      color: AppColors.white,
+                                      iconSize: 20,
+                                      constraints: const BoxConstraints(),
+                                    ),
                                   ),
                                 ],
                               ),
-                            ),
-                            SizedBox(
-                              width: 16,
-                              child: IconButton(
-                                onPressed: () {},
-                                icon:
-                                    const Icon(Icons.arrow_forward_ios_rounded),
-                                padding: EdgeInsets.zero,
-                                color: AppColors.white,
-                                iconSize: 20,
-                                constraints: const BoxConstraints(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                            )
+                          : const SizedBox(),
                       const SizedBox(height: 30),
                       ListTile(
                         contentPadding: EdgeInsets.zero,
@@ -139,7 +174,7 @@ class AppDrawer extends StatelessWidget {
                           );
 
                           if (result == true) {
-                            _refreshUserName(); // Only refresh if saved
+                            _refreshUserName(); // Refresh if the profile was updated
                           }
                         },
                       ),
@@ -147,7 +182,7 @@ class AppDrawer extends StatelessWidget {
                         contentPadding: EdgeInsets.zero,
                         leading: const Icon(Icons.lock_outline_rounded,
                             color: AppColors.black),
-                        title: const Text('Privacidade e Segunrança',
+                        title: const Text('Privacidade e Segurança',
                             style: AppFonts.text),
                         onTap: () {
                           Navigator.push(
@@ -213,6 +248,7 @@ class AppDrawer extends StatelessWidget {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: AppColors.white,
           title: Text(
             'Sair da Conta',
             textAlign: TextAlign.center,
