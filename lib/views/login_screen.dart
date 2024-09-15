@@ -140,7 +140,7 @@ class _PageContentState extends State<PageContent> {
                             _hidePassword
                                 ? Icons.visibility
                                 : Icons.visibility_off,
-                            color: AppColors.primary,
+                            color: AppColors.grey,
                           ),
                           onPressed: () {
                             setState(() {
