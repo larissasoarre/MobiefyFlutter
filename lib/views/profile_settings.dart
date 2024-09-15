@@ -203,6 +203,7 @@ class _PageContentState extends State<PageContent> {
         _fullNameController.text = userData['full_name'] ?? '';
         _emailController.text = userData['email'] ?? '';
         _dobController.text = userData['date_of_birth'] ?? '';
+        _pronounController.text = userData['pronouns'] ?? '';
         _selectedGender = userData['gender'];
         _selectedCity = userData['city'];
         _selectedDisability = userData['disability'];

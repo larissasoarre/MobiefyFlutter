@@ -100,6 +100,24 @@ class FirestoreService {
     }
   }
 
+  Future<void> updateEmergencyContactDetails(
+    String uid,
+    String contactName,
+    String contactNumber,
+  ) async {
+    try {
+      await _db.collection('users').doc(uid).update({
+        'emergency_contact_name': contactName,
+        'emergency_contact_number': contactNumber,
+      });
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error updating user details in Firestore: $e");
+      }
+      rethrow;
+    }
+  }
+
   Future<Map<String, dynamic>?> getUserDetails(String uid) async {
     try {
       DocumentSnapshot snapshot = await _db.collection('users').doc(uid).get();
