@@ -29,7 +29,7 @@ class AppDrawer extends StatefulWidget {
 class _AppDrawerState extends State<AppDrawer> {
   late String _uid;
   late String _userName;
-  bool _completedData = false;
+  bool _completedData = true;
 
   @override
   void initState() {

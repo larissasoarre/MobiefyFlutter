@@ -4,46 +4,50 @@ import 'package:mobiefy_flutter/constants/fonts.dart';
 
 enum SubscriptionType {
   free,
-
   paid,
 }
 
 class SubscriptionCard extends StatelessWidget {
-  // final bool currentSubscription;
-  // final SubscriptionType type;
-  // final String monthlyPrice;
-  // final String annualPrice;
-  // final Image cover;
-  // final VoidCallback onPressed;
-  // final Color color;
+  final bool currentSubscription;
+  final SubscriptionType type;
+  final bool? premiumStudent;
+  final String? monthlyPrice;
+  final String? annualPrice;
+  final Image cover;
+  final VoidCallback onPressed;
+  final Color color;
   const SubscriptionCard({
     super.key,
-    // required this.currentSubscription,
-    // required this.type,
-    // required this.monthlyPrice,
-    // required this.annualPrice,
-    // required this.cover,
-    // required this.color,
-    // required this.onPressed,
+    required this.currentSubscription,
+    required this.type,
+    this.premiumStudent = false,
+    this.monthlyPrice,
+    this.annualPrice,
+    required this.cover,
+    required this.color,
+    required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
+    String? price = monthlyPrice ?? annualPrice;
+    String? interval = monthlyPrice != null ? 'mês' : 'ano';
+    String? trips = monthlyPrice != null ? '10' : '120';
+
     return SizedBox(
       width: double.infinity,
       child: ClipRRect(
-        borderRadius:
-            BorderRadius.circular(20.0), // Match the button's border radius
+        borderRadius: BorderRadius.circular(20.0),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             elevation: 0,
-            backgroundColor: AppColors.secondaryLight,
+            backgroundColor: color,
             padding: const EdgeInsets.all(0),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(0.0),
             ),
           ),
-          onPressed: () {},
+          onPressed: onPressed,
           child: Stack(
             children: [
               Column(
@@ -64,7 +68,11 @@ class SubscriptionCard extends StatelessWidget {
                                 color: AppColors.primary,
                               ),
                               child: Text(
-                                "Premium",
+                                type == SubscriptionType.free
+                                    ? "Grátis"
+                                    : (premiumStudent == true)
+                                        ? "Premium Estudante"
+                                        : "Premium",
                                 style: AppFonts.text.copyWith(
                                   color: AppColors.white,
                                   fontSize: 14,
@@ -73,26 +81,41 @@ class SubscriptionCard extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(width: 13),
-                            Text(
-                              "Assinatura atual",
-                              style: AppFonts.text.copyWith(
-                                color: AppColors.black,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
+                            currentSubscription
+                                ? Text(
+                                    "Assinatura atual",
+                                    style: AppFonts.text.copyWith(
+                                      color: AppColors.black,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  )
+                                : const SizedBox()
                           ],
                         ),
                         const SizedBox(height: 20),
+                        type == SubscriptionType.free
+                            ? Text(
+                                trips,
+                                style: AppFonts.heading.copyWith(
+                                  color: AppColors.primary,
+                                  fontSize: 40,
+                                ),
+                              )
+                            : const Column(
+                                children: [
+                                  Image(
+                                    image: AssetImage(
+                                        'lib/assets/images/unlimited.png'),
+                                    width: 60,
+                                  ),
+                                  SizedBox(height: 10)
+                                ],
+                              ),
                         Text(
-                          "10",
-                          style: AppFonts.heading.copyWith(
-                            color: AppColors.primary,
-                            fontSize: 40,
-                          ),
-                        ),
-                        Text(
-                          "Viagens",
+                          type == SubscriptionType.free
+                              ? "Viagens"
+                              : "Viagens ilimitadas",
                           style: AppFonts.text.copyWith(
                             color: AppColors.black,
                             fontSize: 14,
@@ -100,7 +123,7 @@ class SubscriptionCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 45),
                         Text(
-                          "R\$19,99 / mês",
+                          'R\$$price / $interval',
                           style: AppFonts.text.copyWith(
                             color: AppColors.black,
                             fontSize: 14,
@@ -112,15 +135,10 @@ class SubscriptionCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const Positioned(
+              Positioned(
                 bottom: 0,
                 right: 0,
-                child: Image(
-                  image: AssetImage(
-                    'lib/assets/images/free.png',
-                  ),
-                  width: 180,
-                ),
+                child: cover,
               ),
             ],
           ),
