@@ -86,6 +86,7 @@ flutter:
     - lib/assets/images/premium.png
     - lib/assets/images/premium_student.png
     - lib/assets/images/unlimited.png
+    - lib/assets/images/network_status.png
     - .env
   fonts:
     - family: Roboto
