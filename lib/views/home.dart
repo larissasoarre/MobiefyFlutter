@@ -15,6 +15,7 @@ import 'package:mobiefy_flutter/widgets/app_drawer.dart';
 import 'package:mobiefy_flutter/widgets/button.dart';
 import 'package:mobiefy_flutter/widgets/circular_button.dart';
 import 'package:mobiefy_flutter/widgets/location_list_tile.dart';
+import 'package:mobiefy_flutter/widgets/route_list_tile.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
 
@@ -38,7 +39,107 @@ class _HomeScreenState extends State<HomeScreen> {
   List<dynamic> listOfLocations = [];
   LatLng endRoute = const LatLng(0, 0);
   bool routeStarted = false;
-  TravelMode travelMode = TravelMode.walking;
+  TravelMode? travelMode;
+  String? travelTime;
+  String? travelDistance;
+  bool mixedRoute = true;
+
+  String? drivingTime;
+  String? drivingDistance;
+  String? walkingTime;
+  String? walkingDistance;
+  String? bicyclingTime;
+  String? bicyclingDistance;
+
+  void _updateTravelTime() {
+    setState(() {
+      // Trigger a rebuild to fetch and display the updated travel time
+    });
+  }
+
+  Widget results(bool mixedRoute, TravelMode? travelMode,
+      String? travelDistance, String? travelTime) {
+    // Convert travel times to minutes
+    final drivingTimeInMinutes =
+        drivingTime != null ? convertTimeToMinutes(drivingTime!) : 0;
+    final walkingTimeInMinutes =
+        walkingTime != null ? convertTimeToMinutes(walkingTime!) : 0;
+    final bicyclingTimeInMinutes =
+        bicyclingTime != null ? convertTimeToMinutes(bicyclingTime!) : 0;
+    final selectedTimeInMinutes =
+        travelTime != null ? convertTimeToMinutes(travelTime!) : 0;
+
+    if (mixedRoute) {
+      // Display results for all travel modes if mixedRoute is true
+      return Column(
+        children: [
+          RouteListTile(
+            divider: true,
+            travelMode: TravelMode.driving,
+            distance: drivingDistance ?? 'N/A',
+            time: drivingTime ?? '',
+            timeInMinutes:
+                drivingTime != null ? drivingTimeInMinutes.toString() : 'N/A',
+          ),
+          RouteListTile(
+            divider: true,
+            travelMode: TravelMode.walking,
+            distance: walkingDistance ?? 'N/A',
+            time: walkingTime ?? '',
+            timeInMinutes:
+                walkingTime != null ? walkingTimeInMinutes.toString() : 'N/A',
+          ),
+          RouteListTile(
+            travelMode: TravelMode.bicycling,
+            distance: bicyclingDistance ?? 'N/A',
+            time: bicyclingTime ?? '',
+            timeInMinutes: bicyclingTime != null
+                ? bicyclingTimeInMinutes.toString()
+                : 'N/A',
+          ),
+        ],
+      );
+    } else if (travelMode != null) {
+      // Display only the selected travel mode
+      return Column(
+        children: [
+          RouteListTile(
+            travelMode: travelMode,
+            distance: travelDistance ?? 'N/A',
+            time: travelTime ?? '',
+            timeInMinutes:
+                travelTime != null ? selectedTimeInMinutes.toString() : 'N/A',
+          ),
+        ],
+      );
+    } else {
+      return const SizedBox();
+    }
+  }
+
+  int convertTimeToMinutes(String time) {
+    // Initialize total minutes
+    int totalMinutes = 0;
+
+    // Remove any non-numeric characters
+    final durationString =
+        time.toLowerCase().replaceAll(RegExp(r'[^0-9\s]'), ' ').trim();
+    final parts = durationString.split(RegExp(r'\s+'));
+
+    if (parts.isNotEmpty) {
+      // Parse hours and minutes if available
+      if (parts.length == 2) {
+        final hours = int.tryParse(parts[0]) ?? 0;
+        final minutes = int.tryParse(parts[1]) ?? 0;
+        totalMinutes = (hours * 60) + minutes;
+      } else if (parts.length == 1) {
+        final minutes = int.tryParse(parts[0]) ?? 0;
+        totalMinutes = minutes;
+      }
+    }
+
+    return totalMinutes;
+  }
 
   @override
   void initState() {
@@ -219,9 +320,40 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           body: Stack(
             children: [
+              // AppMap(
+              //   endRoute: endRoute,
+              //   travelMode: travelMode,
+              //   onTravelInfoUpdated: (String time, String distance) {
+              //     setState(() {
+              //       travelTime = time;
+              //       travelDistance = distance; // Store distance
+              //     });
+              //   },
+              // ),
               AppMap(
                 endRoute: endRoute,
                 travelMode: travelMode,
+                onTravelInfoUpdated: (String time, String distance) {
+                  setState(() {
+                    travelTime = time;
+                    travelDistance = distance;
+                  });
+                },
+                onMixedTravelInfoUpdated: (String drivingTime,
+                    String drivingDistance,
+                    String walkingTime,
+                    String walkingDistance,
+                    String bicyclingTime,
+                    String bicyclingDistance) {
+                  setState(() {
+                    this.drivingTime = drivingTime;
+                    this.drivingDistance = drivingDistance;
+                    this.walkingTime = walkingTime;
+                    this.walkingDistance = walkingDistance;
+                    this.bicyclingTime = bicyclingTime;
+                    this.bicyclingDistance = bicyclingDistance;
+                  });
+                },
               ),
               Positioned(
                 top: 40,
@@ -319,7 +451,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 maxChildSize: _isSearchFocused
                     ? 0.79
                     : _isPolylineDrawn
-                        ? 0.3
+                        ? 0.6
                         : 0.3,
                 minChildSize: 0.125,
                 builder:
@@ -464,6 +596,57 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       style: ButtonStyle(
                                                         backgroundColor:
                                                             WidgetStateProperty.all<
+                                                                    Color>(
+                                                                mixedRoute
+                                                                    ? AppColors
+                                                                        .secondary
+                                                                    : AppColors
+                                                                        .primary),
+                                                        shape: WidgetStateProperty
+                                                            .all<
+                                                                OutlinedBorder>(
+                                                          const RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .all(
+                                                              Radius.circular(
+                                                                  13),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      iconSize: 25,
+                                                      color: AppColors.white,
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              20),
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          travelMode = null;
+                                                          mixedRoute = true;
+                                                        });
+                                                      },
+                                                      icon: const Icon(
+                                                          Icons.shuffle),
+                                                    ),
+                                                    const SizedBox(
+                                                      height: 5,
+                                                    ),
+                                                    const Text(
+                                                      "Misto",
+                                                      style: AppFonts.text,
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(
+                                                  width: 25,
+                                                ),
+                                                Column(
+                                                  children: [
+                                                    IconButton(
+                                                      style: ButtonStyle(
+                                                        backgroundColor:
+                                                            WidgetStateProperty.all<
                                                                 Color>(travelMode ==
                                                                     TravelMode
                                                                         .walking
@@ -494,6 +677,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           travelMode =
                                                               TravelMode
                                                                   .walking;
+                                                          mixedRoute = false;
                                                         });
                                                       },
                                                       icon: const Icon(Icons
@@ -547,6 +731,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           travelMode =
                                                               TravelMode
                                                                   .driving;
+                                                          mixedRoute = false;
                                                         });
                                                       },
                                                       icon: const Icon(Icons
@@ -600,6 +785,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           travelMode =
                                                               TravelMode
                                                                   .bicycling;
+                                                          mixedRoute = false;
                                                         });
                                                       },
                                                       icon: const Icon(Icons
@@ -616,6 +802,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 )
                                               ],
                                             ),
+                                            const SizedBox(height: 10),
+                                            results(mixedRoute, travelMode,
+                                                travelDistance, travelTime),
+
                                             // const SizedBox(
                                             //   height: 15,
                                             // ),
@@ -728,7 +918,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                               _isPolylineDrawn = false;
                                               _searchController.clear();
                                             });
-                                            print(_isPolylineDrawn);
+                                            if (kDebugMode) {
+                                              print(_isPolylineDrawn);
+                                            }
                                             FocusScope.of(context).unfocus();
                                           },
                                         ),
