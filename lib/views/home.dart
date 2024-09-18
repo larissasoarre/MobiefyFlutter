@@ -1127,6 +1127,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                               setWalkingRoute = false;
                                               setBicyclingRoute = false;
                                               setDrivingRoute = false;
+                                              travelMode = null;
+                                              mixedRoute = true;
                                             });
                                           } else {
                                             setState(() {
