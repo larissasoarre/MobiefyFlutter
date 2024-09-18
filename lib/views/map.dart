@@ -20,6 +20,7 @@ class AppMap extends StatefulWidget {
       String walkingDistance,
       String bicyclingTime,
       String bicyclingDistance) onMixedTravelInfoUpdated;
+  final VoidCallback onStartRoute;
 
   const AppMap({
     super.key,
@@ -27,13 +28,14 @@ class AppMap extends StatefulWidget {
     this.travelMode,
     required this.onTravelInfoUpdated,
     required this.onMixedTravelInfoUpdated,
+    required this.onStartRoute,
   });
 
   @override
-  State<AppMap> createState() => _AppMapState();
+  State<AppMap> createState() => AppMapState();
 }
 
-class _AppMapState extends State<AppMap> {
+class AppMapState extends State<AppMap> {
   final Completer<GoogleMapController> googleMapCompleterController =
       Completer<GoogleMapController>();
   GoogleMapController? googleMapController;
@@ -138,38 +140,6 @@ class _AppMapState extends State<AppMap> {
     }
   }
 
-  // Future<void> getPolyPoints() async {
-  //   try {
-  //     PolylineResult polylineResult =
-  //         await polylinePoints.getRouteBetweenCoordinates(
-  //       googleApiKey: apiKey,
-  //       request: PolylineRequest(
-  //         origin: PointLatLng(
-  //             initialPosition!.latitude, initialPosition!.longitude),
-  //         destination:
-  //             PointLatLng(widget.endRoute.latitude, widget.endRoute.longitude),
-  //         mode: widget.travelMode!,
-  //       ),
-  //     );
-
-  //     if (polylineResult.points.isNotEmpty) {
-  //       setState(() {
-  //         polylineCoordinates = polylineResult.points
-  //             .map((point) => LatLng(point.latitude, point.longitude))
-  //             .toList();
-  //       });
-  //     } else {
-  //       if (kDebugMode) {
-  //         print('No route found between the given coordinates.');
-  //       }
-  //     }
-  //   } catch (e) {
-  //     if (kDebugMode) {
-  //       print('Error getting polyline points: $e');
-  //     }
-  //   }
-  // }
-
   Future<void> getPolyPoints() async {
     if (widget.travelMode == null) {
       // Mixed route: fetch polyline for multiple modes and pick the fastest
@@ -219,6 +189,12 @@ class _AppMapState extends State<AppMap> {
         print('Error fetching polyline for mode: $mode. Error: $e');
       }
     }
+  }
+
+  void clearPolyline() {
+    setState(() {
+      polylineCoordinates.clear();
+    });
   }
 
   Future<void> getTravelInfo() async {
@@ -307,55 +283,6 @@ class _AppMapState extends State<AppMap> {
 
     return duration;
   }
-
-  // Future<void> getTravelInfo() async {
-  //   if (initialPosition == null) return;
-
-  //   if (widget.travelMode == null) {
-  //     // Mixed mode: Request travel info for multiple modes
-  //     await _fetchTravelInfoForMode('driving');
-  //     await _fetchTravelInfoForMode('walking');
-  //     await _fetchTravelInfoForMode('transit');
-  //   } else {
-  //     // Normal mode: Request travel info for the specified mode
-  //     await _fetchTravelInfoForMode(
-  //         widget.travelMode.toString().split('.').last);
-  //   }
-  // }
-
-  // Future<void> _fetchTravelInfoForMode(String mode) async {
-  //   final String url =
-  //       'https://maps.googleapis.com/maps/api/directions/json?origin=${initialPosition!.latitude},${initialPosition!.longitude}&destination=${widget.endRoute.latitude},${widget.endRoute.longitude}&mode=$mode&key=$apiKey';
-
-  //   try {
-  //     final response = await http.get(Uri.parse(url));
-
-  //     if (response.statusCode == 200) {
-  //       final data = jsonDecode(response.body);
-
-  //       if (data['routes'] != null && data['routes'].isNotEmpty) {
-  //         final duration = data['routes'][0]['legs'][0]['duration']['text'];
-  //         final distance = data['routes'][0]['legs'][0]['distance']['text'];
-  //         widget.onTravelInfoUpdated(
-  //             duration, distance); // Notify parent of travel time and distance
-  //       } else {
-  //         if (kDebugMode) {
-  //           print('No routes found for mode: $mode');
-  //         }
-  //       }
-  //     } else {
-  //       if (kDebugMode) {
-  //         print(
-  //             'Failed to load directions for mode: $mode. Status code: ${response.statusCode}');
-  //       }
-  //     }
-  //   } catch (e) {
-  //     if (kDebugMode) {
-  //       print(
-  //           'Error fetching travel time and distance for mode: $mode. Error: $e');
-  //     }
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {

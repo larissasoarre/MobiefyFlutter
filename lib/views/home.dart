@@ -28,6 +28,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  GlobalKey<AppMapState> appMapKey = GlobalKey<AppMapState>();
   String _userName = '';
   final _searchController = TextEditingController();
   bool _isSearchFocused = false;
@@ -51,11 +52,12 @@ class _HomeScreenState extends State<HomeScreen> {
   String? bicyclingTime;
   String? bicyclingDistance;
 
-  void _updateTravelTime() {
-    setState(() {
-      // Trigger a rebuild to fetch and display the updated travel time
-    });
-  }
+  DateTime? _routeStartTime;
+  DateTime? _routeEndTime;
+
+  bool setWalkingRoute = false;
+  bool setDrivingRoute = false;
+  bool setBicyclingRoute = false;
 
   Widget results(bool mixedRoute, TravelMode? travelMode,
       String? travelDistance, String? travelTime) {
@@ -67,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final bicyclingTimeInMinutes =
         bicyclingTime != null ? convertTimeToMinutes(bicyclingTime!) : 0;
     final selectedTimeInMinutes =
-        travelTime != null ? convertTimeToMinutes(travelTime!) : 0;
+        travelTime != null ? convertTimeToMinutes(travelTime) : 0;
 
     if (mixedRoute) {
       // Display results for all travel modes if mixedRoute is true
@@ -80,6 +82,15 @@ class _HomeScreenState extends State<HomeScreen> {
             time: drivingTime ?? '',
             timeInMinutes:
                 drivingTime != null ? drivingTimeInMinutes.toString() : 'N/A',
+            onPressed: () {
+              setState(() {
+                this.travelMode = TravelMode.driving;
+                setDrivingRoute = true;
+                setWalkingRoute = false;
+                setBicyclingRoute = false;
+              });
+              _startRoute();
+            },
           ),
           RouteListTile(
             divider: true,
@@ -88,6 +99,15 @@ class _HomeScreenState extends State<HomeScreen> {
             time: walkingTime ?? '',
             timeInMinutes:
                 walkingTime != null ? walkingTimeInMinutes.toString() : 'N/A',
+            onPressed: () {
+              setState(() {
+                this.travelMode = TravelMode.walking;
+                setWalkingRoute = true;
+                setDrivingRoute = false;
+                setBicyclingRoute = false;
+              });
+              _startRoute();
+            },
           ),
           RouteListTile(
             travelMode: TravelMode.bicycling,
@@ -96,6 +116,15 @@ class _HomeScreenState extends State<HomeScreen> {
             timeInMinutes: bicyclingTime != null
                 ? bicyclingTimeInMinutes.toString()
                 : 'N/A',
+            onPressed: () {
+              setState(() {
+                this.travelMode = TravelMode.bicycling;
+                setBicyclingRoute = true;
+                setWalkingRoute = false;
+                setDrivingRoute = false;
+              });
+              _startRoute();
+            },
           ),
         ],
       );
@@ -109,6 +138,30 @@ class _HomeScreenState extends State<HomeScreen> {
             time: travelTime ?? '',
             timeInMinutes:
                 travelTime != null ? selectedTimeInMinutes.toString() : 'N/A',
+            onPressed: () {
+              if (travelMode == TravelMode.walking) {
+                setState(() {
+                  setWalkingRoute = true;
+                  setDrivingRoute = false;
+                  setBicyclingRoute = false;
+                });
+                _startRoute();
+              } else if (travelMode == TravelMode.driving) {
+                setState(() {
+                  setWalkingRoute = false;
+                  setDrivingRoute = true;
+                  setBicyclingRoute = false;
+                });
+                _startRoute();
+              } else {
+                setState(() {
+                  setWalkingRoute = false;
+                  setDrivingRoute = false;
+                  setBicyclingRoute = true;
+                });
+                _startRoute();
+              }
+            },
           ),
         ],
       );
@@ -284,7 +337,22 @@ class _HomeScreenState extends State<HomeScreen> {
     String number = details['number'] ?? '';
     String city = details['city'] ?? '';
     String postalCode = details['postalCode'] ?? '';
-    return '$street $number, $city, $postalCode';
+
+    List<String> addressParts = [];
+
+    if (street.isNotEmpty || number.isNotEmpty) {
+      addressParts.add('$street $number'.trim());
+    }
+
+    if (city.isNotEmpty) {
+      addressParts.add(city);
+    }
+
+    if (postalCode.isNotEmpty) {
+      addressParts.add(postalCode);
+    }
+
+    return addressParts.join(', ');
   }
 
   // Pre-load user's name before Drawer opens
@@ -301,6 +369,168 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _refreshUserName() async {
     await _fetchUserName();
+  }
+
+  void _startRoute() {
+    setState(() {
+      _routeStartTime = DateTime.now();
+      if (travelTime != null) {
+        final duration = _parseTravelTime(travelTime!);
+        _routeEndTime = _routeStartTime?.add(duration);
+      }
+    });
+  }
+
+  Duration _parseTravelTime(String travelTime) {
+    final regex = RegExp(r'(\d+) hour[s]?|(\d+) hr[s]?|(\d+) min|(\d+) mins?');
+    final matches = regex.allMatches(travelTime.toLowerCase());
+
+    int hours = 0, minutes = 0;
+
+    for (final match in matches) {
+      if (match.group(1) != null) hours = int.parse(match.group(1)!);
+      if (match.group(2) != null) hours = int.parse(match.group(2)!);
+      if (match.group(3) != null) minutes = int.parse(match.group(3)!);
+      if (match.group(4) != null) minutes = int.parse(match.group(4)!);
+    }
+
+    return Duration(hours: hours, minutes: minutes);
+  }
+
+  Widget _buildRouteTimes() {
+    String type = travelMode == TravelMode.walking
+        ? 'Ande'
+        : travelMode == TravelMode.driving
+            ? 'Dirija'
+            : 'Pedale';
+
+    String? chosenTravelTime = travelMode == TravelMode.walking
+        ? walkingTime
+        : travelMode == TravelMode.driving
+            ? drivingTime
+            : bicyclingTime;
+
+    return Container(
+      padding: const EdgeInsets.only(left: 38, right: 38),
+      child: Column(
+        children: [
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Column(
+                children: [
+                  const SizedBox(height: 30),
+                  const Image(
+                    width: 18,
+                    image: AssetImage(
+                      'lib/assets/images/location_pin.png',
+                    ),
+                  ),
+                  // Icon(Icons.location_pin),
+                  const SizedBox(height: 10),
+                  const Image(
+                    image: AssetImage('lib/assets/images/dots.png'),
+                  ),
+                  const SizedBox(height: 10),
+                  Icon(
+                    travelMode == TravelMode.walking
+                        ? Icons.directions_walk_rounded
+                        : travelMode == TravelMode.driving
+                            ? Icons.drive_eta_rounded
+                            : Icons.pedal_bike_rounded,
+                  ),
+                  const SizedBox(height: 10),
+                  const Image(
+                    image: AssetImage(
+                      'lib/assets/images/dots.png',
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1), // Shadow color
+                          spreadRadius: 1, // Spread radius
+                          blurRadius: 10, // Blur radius
+                        ),
+                      ],
+                      shape: BoxShape.rectangle,
+                    ),
+                    child: const Image(
+                      image: AssetImage('lib/assets/images/end_location.png'),
+                    ),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 22),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: Text(
+                            'Sua localização',
+                            style: AppFonts.text
+                                .copyWith(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        Text(
+                          '${_routeStartTime!.toLocal().hour.toString().padLeft(2, '0')}:${_routeStartTime!.toLocal().minute.toString().padLeft(2, '0')}',
+                          style: AppFonts.text
+                              .copyWith(fontWeight: FontWeight.w700),
+                        )
+                      ],
+                    ),
+                    const SizedBox(height: 52),
+                    Row(
+                      children: [
+                        Padding(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: Text(
+                              '$type por $chosenTravelTime',
+                              style: AppFonts.text,
+                            )),
+                      ],
+                    ),
+                    const SizedBox(height: 52),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: Text(
+                            _searchController.text,
+                            style: AppFonts.text
+                                .copyWith(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        Text(
+                          '${_routeEndTime!.toLocal().hour.toString().padLeft(2, '0')}:${_routeEndTime!.toLocal().minute.toString().padLeft(2, '0')}',
+                          style: AppFonts.text
+                              .copyWith(fontWeight: FontWeight.w700),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+          const SizedBox(height: 110),
+          CustomButton(
+              label: 'Atualizar',
+              onPressed: () {
+                _startRoute();
+              })
+        ],
+      ),
+    );
   }
 
   @override
@@ -320,17 +550,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           body: Stack(
             children: [
-              // AppMap(
-              //   endRoute: endRoute,
-              //   travelMode: travelMode,
-              //   onTravelInfoUpdated: (String time, String distance) {
-              //     setState(() {
-              //       travelTime = time;
-              //       travelDistance = distance; // Store distance
-              //     });
-              //   },
-              // ),
               AppMap(
+                key: appMapKey,
                 endRoute: endRoute,
                 travelMode: travelMode,
                 onTravelInfoUpdated: (String time, String distance) {
@@ -354,6 +575,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     this.bicyclingDistance = bicyclingDistance;
                   });
                 },
+                onStartRoute: _startRoute,
               ),
               Positioned(
                 top: 40,
@@ -579,7 +801,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                       },
                                     ),
                                   )
-                                : _isPolylineDrawn
+                                : _isPolylineDrawn &&
+                                        !setWalkingRoute &&
+                                        !setBicyclingRoute &&
+                                        !setDrivingRoute
                                     ? Container(
                                         padding: const EdgeInsets.fromLTRB(
                                             23, 0, 23, 0),
@@ -805,155 +1030,147 @@ class _HomeScreenState extends State<HomeScreen> {
                                             const SizedBox(height: 10),
                                             results(mixedRoute, travelMode,
                                                 travelDistance, travelTime),
-
-                                            // const SizedBox(
-                                            //   height: 15,
-                                            // ),
-                                            // Column(
-                                            //   children: [
-                                            //     const SizedBox(
-                                            //       height: 10,
-                                            //     ),
-                                            //     CustomButton(
-                                            //       label: routeStarted
-                                            //           ? 'Finalizar'
-                                            //           : 'Começar',
-                                            //       icon: routeStarted
-                                            //           ? Icons.close_rounded
-                                            //           : Icons
-                                            //               .navigation_rounded,
-                                            //       color: routeStarted
-                                            //           ? AppColors.secondary
-                                            //           : AppColors.primary,
-                                            //       onPressed: () {
-                                            //         setState(() {
-                                            //           routeStarted =
-                                            //               !routeStarted;
-                                            //         });
-                                            //       },
-                                            //     ),
-                                            //   ],
+                                            // if (_routeStartTime != null &&
+                                            //     _routeEndTime != null)
+                                            //   _buildRouteTimes(),
+                                            // ElevatedButton(
+                                            //   onPressed: _startRoute,
+                                            //   child: const Text('Start Route'),
                                             // ),
                                           ],
                                         ),
                                       )
-                                    : Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            23, 0, 23, 0),
-                                        child: Container(
-                                          padding: const EdgeInsets.all(15),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.brightShade,
-                                            borderRadius:
-                                                BorderRadius.circular(15),
+                                    : setWalkingRoute ||
+                                            setBicyclingRoute ||
+                                            setDrivingRoute
+                                        ? _buildRouteTimes()
+                                        : Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                23, 0, 23, 0),
+                                            child: Container(
+                                              padding: const EdgeInsets.all(15),
+                                              decoration: BoxDecoration(
+                                                color: AppColors.brightShade,
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  CircularButton(
+                                                    icon: Icons.home,
+                                                    label: 'Casa',
+                                                    onPressed: () {},
+                                                  ),
+                                                  const SizedBox(width: 15),
+                                                  CircularButton(
+                                                    icon: Icons.work,
+                                                    label: 'Trabalho',
+                                                    onPressed: () {},
+                                                  ),
+                                                  const SizedBox(width: 20),
+                                                  CircularButton(
+                                                    icon:
+                                                        Icons.favorite_rounded,
+                                                    label: 'Vó',
+                                                    onPressed: () {},
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
                                           ),
-                                          child: Row(
-                                            children: [
-                                              CircularButton(
-                                                icon: Icons.home,
-                                                label: 'Casa',
-                                                onPressed: () {},
-                                              ),
-                                              const SizedBox(width: 15),
-                                              CircularButton(
-                                                icon: Icons.work,
-                                                label: 'Trabalho',
-                                                onPressed: () {},
-                                              ),
-                                              const SizedBox(width: 20),
-                                              CircularButton(
-                                                icon: Icons.favorite_rounded,
-                                                label: 'Vó',
-                                                onPressed: () {},
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
                           ],
                         ),
                         Positioned(
-                            top: 10,
-                            left: 23,
-                            right: 23,
-                            child: Column(
-                              children: [
-                                Center(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).hintColor,
-                                      borderRadius: const BorderRadius.all(
-                                          Radius.circular(10)),
-                                    ),
-                                    height: 4,
-                                    width: 40,
-                                    margin: const EdgeInsets.symmetric(
-                                        vertical: 10),
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
-                                Container(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(15, 0, 5, 0),
+                          top: 10,
+                          left: 23,
+                          right: 23,
+                          child: Column(
+                            children: [
+                              Center(
+                                child: Container(
                                   decoration: BoxDecoration(
-                                    color: AppColors.brightShade,
-                                    borderRadius: BorderRadius.circular(15),
+                                    color: Theme.of(context).hintColor,
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(10)),
                                   ),
-                                  child: Row(
-                                    children: [
-                                      SizedBox(
-                                        width: 20,
-                                        child: IconButton(
-                                          padding: EdgeInsets.zero,
-                                          iconSize: 20,
-                                          icon: Icon(
-                                            _searchController.text.isEmpty &&
-                                                    !_isPolylineDrawn
-                                                ? Icons.search
-                                                : Icons.arrow_back_ios_rounded,
-                                          ),
-                                          onPressed: () {
+                                  height: 4,
+                                  width: 40,
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 10),
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              Container(
+                                padding: const EdgeInsets.fromLTRB(15, 0, 5, 0),
+                                decoration: BoxDecoration(
+                                  color: AppColors.brightShade,
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 20,
+                                      child: IconButton(
+                                        padding: EdgeInsets.zero,
+                                        iconSize: 20,
+                                        icon: Icon(
+                                          _searchController.text.isEmpty &&
+                                                  !_isPolylineDrawn
+                                              ? Icons.search
+                                              : Icons.arrow_back_ios_rounded,
+                                        ),
+                                        onPressed: () {
+                                          if (setWalkingRoute ||
+                                              setDrivingRoute ||
+                                              setBicyclingRoute) {
+                                            setState(() {
+                                              setWalkingRoute = false;
+                                              setBicyclingRoute = false;
+                                              setDrivingRoute = false;
+                                            });
+                                          } else {
                                             setState(() {
                                               _isSearchFocused = false;
                                               _isPolylineDrawn = false;
                                               _searchController.clear();
+                                              appMapKey.currentState
+                                                  ?.clearPolyline();
                                             });
-                                            if (kDebugMode) {
-                                              print(_isPolylineDrawn);
-                                            }
                                             FocusScope.of(context).unfocus();
-                                          },
-                                        ),
+                                          }
+                                        },
                                       ),
-                                      Expanded(
-                                        child: Form(
-                                          child: TextFormField(
-                                            controller: _searchController,
-                                            focusNode: _searchFocusNode,
-                                            onChanged: (text) {
-                                              _onChange();
-                                            },
-                                            onTap: () {
-                                              setState(() {
-                                                _isSearchFocused = true;
-                                              });
-                                            },
-                                            decoration: const InputDecoration(
-                                              filled: true,
-                                              hintText: 'Para onde?',
-                                              fillColor: AppColors.brightShade,
-                                              border: OutlineInputBorder(
-                                                borderSide: BorderSide.none,
-                                              ),
+                                    ),
+                                    Expanded(
+                                      child: Form(
+                                        child: TextFormField(
+                                          controller: _searchController,
+                                          focusNode: _searchFocusNode,
+                                          onChanged: (text) {
+                                            _onChange();
+                                          },
+                                          onTap: () {
+                                            setState(() {
+                                              _isSearchFocused = true;
+                                            });
+                                          },
+                                          decoration: const InputDecoration(
+                                            filled: true,
+                                            hintText: 'Para onde?',
+                                            fillColor: AppColors.brightShade,
+                                            border: OutlineInputBorder(
+                                              borderSide: BorderSide.none,
                                             ),
                                           ),
                                         ),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            )),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   );
