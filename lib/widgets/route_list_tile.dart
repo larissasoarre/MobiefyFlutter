@@ -9,6 +9,7 @@ class RouteListTile extends StatelessWidget {
   final String timeInMinutes;
   final String distance;
   final bool? divider;
+  final VoidCallback onPressed;
 
   const RouteListTile({
     super.key,
@@ -17,68 +18,85 @@ class RouteListTile extends StatelessWidget {
     required this.distance,
     required this.timeInMinutes,
     this.divider = false,
+    required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 20, bottom: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Icon(
-                        travelMode == TravelMode.walking
-                            ? Icons.directions_walk_rounded
-                            : travelMode == TravelMode.driving
-                                ? Icons.drive_eta_rounded
-                                : Icons.pedal_bike_rounded,
-                      ),
-                      SizedBox(width: travelMode == TravelMode.walking ? 0 : 5),
-                      Text(
-                        timeInMinutes,
-                        style: AppFonts.text.copyWith(height: 1, fontSize: 13),
-                      )
-                    ],
-                  ),
-                  Text(
-                    time,
-                    style: AppFonts.text.copyWith(fontWeight: FontWeight.w700),
-                  )
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  const Image(
-                    image: AssetImage('lib/assets/images/network_status.png'),
-                    width: 10,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Distância de $distance',
-                    style: AppFonts.text.copyWith(height: 1, fontSize: 14),
-                  )
-                ],
-              ),
-            ],
-          ),
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        elevation: 0,
+        backgroundColor: AppColors.white,
+        padding: EdgeInsets.zero,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero,
         ),
-        Container(
-          width: double.infinity,
-          height: divider! ? 1 : 0,
-          decoration: const BoxDecoration(
-            color: AppColors.brightShade,
+        minimumSize: Size.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 20, bottom: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Icon(
+                          travelMode == TravelMode.walking
+                              ? Icons.directions_walk_rounded
+                              : travelMode == TravelMode.driving
+                                  ? Icons.drive_eta_rounded
+                                  : Icons.pedal_bike_rounded,
+                        ),
+                        SizedBox(
+                            width: travelMode == TravelMode.walking ? 0 : 5),
+                        Text(
+                          timeInMinutes,
+                          style:
+                              AppFonts.text.copyWith(height: 1, fontSize: 13),
+                        )
+                      ],
+                    ),
+                    Text(
+                      time,
+                      style:
+                          AppFonts.text.copyWith(fontWeight: FontWeight.w700),
+                    )
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    const Image(
+                      image: AssetImage('lib/assets/images/network_status.png'),
+                      width: 10,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Distância de $distance',
+                      style: AppFonts.text.copyWith(height: 1, fontSize: 14),
+                    )
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+          Container(
+            width: double.infinity,
+            height: divider! ? 1 : 0,
+            decoration: const BoxDecoration(
+              color: AppColors.brightShade,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
