@@ -108,7 +108,7 @@ class PageContent extends StatelessWidget {
           color: AppColors.brightShade,
           textColor: AppColors.black,
           onPressed: () {
-            launchUrlSite(url: 'https://mobiefy.netlify.app/');
+            launchUrlSite(url: 'https://mobiefy.netlify.app/mobieclub');
           },
         )
       ],
