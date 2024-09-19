@@ -1,6 +1,8 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:mobiefy_flutter/constants/colors.dart';
 import 'package:mobiefy_flutter/constants/fonts.dart';
+import 'package:mobiefy_flutter/services/url_launcher_service.dart';
 import 'package:mobiefy_flutter/views/data_consent_screen.dart';
 import 'package:mobiefy_flutter/views/signup_screen.dart';
 import 'package:mobiefy_flutter/widgets/button.dart';
@@ -69,9 +71,50 @@ class _DataAgreementScreenState extends State<DataAgreementScreen> {
                     style: AppFonts.text.copyWith(color: AppColors.black),
                   ),
                   const SizedBox(height: 25.0),
-                  Text(
-                    "Algumas informações são essenciais para o funcionamento do serviço e não podem ser desativadas. Para mais detalhes, consulte nossos Termos de Uso.",
-                    style: AppFonts.text.copyWith(color: AppColors.black),
+                  // Text(
+                  //   "Algumas informações são essenciais para o funcionamento do serviço e não podem ser desativadas. Para mais detalhes, consulte nossos Termos de Uso.",
+                  //   style: AppFonts.text.copyWith(color: AppColors.black),
+                  // ),
+                  RichText(
+                    text: TextSpan(
+                      text:
+                          "Algumas informações são essenciais para o funcionamento do serviço e não podem ser desativadas. Para mais detalhes, consulte nossos ",
+                      style: AppFonts.text.copyWith(color: AppColors.black),
+                      children: [
+                        TextSpan(
+                          text: "Termos de Uso",
+                          style: AppFonts.text.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w700),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              launchUrlSite(
+                                  url:
+                                      'https://mobiefy.netlify.app/termos-de-uso');
+                            },
+                        ),
+                        TextSpan(
+                          text: " e ",
+                          style: AppFonts.text.copyWith(color: AppColors.black),
+                        ),
+                        TextSpan(
+                          text: "Política de Privacidade",
+                          style: AppFonts.text.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w700),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              launchUrlSite(
+                                  url:
+                                      'https://mobiefy.netlify.app/politica-de-privacidade');
+                            },
+                        ),
+                        TextSpan(
+                          text: ".",
+                          style: AppFonts.text.copyWith(color: AppColors.black),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
