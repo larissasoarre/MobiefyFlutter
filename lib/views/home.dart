@@ -536,6 +536,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: GestureDetector(
         onTap: () {
           // Unfocus the search field when tapping outside of it
