@@ -675,7 +675,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? 0.79
                     : _isPolylineDrawn
                         ? 0.6
-                        : 0.3,
+                        // : 0.3,
+                        : 0.13,
                 minChildSize: 0.125,
                 builder:
                     (BuildContext context, ScrollController scrollController) {
@@ -1049,35 +1050,35 @@ class _HomeScreenState extends State<HomeScreen> {
                                             padding: const EdgeInsets.fromLTRB(
                                                 23, 0, 23, 0),
                                             child: Container(
-                                              padding: const EdgeInsets.all(15),
-                                              decoration: BoxDecoration(
-                                                color: AppColors.brightShade,
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                              ),
-                                              child: Row(
-                                                children: [
-                                                  CircularButton(
-                                                    icon: Icons.home,
-                                                    label: 'Casa',
-                                                    onPressed: () {},
-                                                  ),
-                                                  const SizedBox(width: 15),
-                                                  CircularButton(
-                                                    icon: Icons.work,
-                                                    label: 'Trabalho',
-                                                    onPressed: () {},
-                                                  ),
-                                                  const SizedBox(width: 20),
-                                                  CircularButton(
-                                                    icon:
-                                                        Icons.favorite_rounded,
-                                                    label: 'Vó',
-                                                    onPressed: () {},
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
+                                                // padding: const EdgeInsets.all(15),
+                                                // decoration: BoxDecoration(
+                                                //   color: AppColors.brightShade,
+                                                //   borderRadius:
+                                                //       BorderRadius.circular(15),
+                                                // ),
+                                                // child: Row(
+                                                //   children: [
+                                                //     CircularButton(
+                                                //       icon: Icons.home,
+                                                //       label: 'Casa',
+                                                //       onPressed: () {},
+                                                //     ),
+                                                //     const SizedBox(width: 15),
+                                                //     CircularButton(
+                                                //       icon: Icons.work,
+                                                //       label: 'Trabalho',
+                                                //       onPressed: () {},
+                                                //     ),
+                                                //     const SizedBox(width: 20),
+                                                //     CircularButton(
+                                                //       icon:
+                                                //           Icons.favorite_rounded,
+                                                //       label: 'Vó',
+                                                //       onPressed: () {},
+                                                //     ),
+                                                //   ],
+                                                // ),
+                                                ),
                                           ),
                           ],
                         ),
